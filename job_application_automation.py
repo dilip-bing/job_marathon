@@ -1211,38 +1211,86 @@ async def automate_job_application(job_url: str, skip_generation: bool = False, 
         # Steps 5-9: Fill application form and submit
         form_result = await fill_application_form(job_url, user_profile, resume_path, cover_letter_path)
         
-        # Check if blocker was detected (form_result is dict with status key)
-        if isinstance(form_result, dict) and "status" in form_result:
-            blocker_status = form_result.get("status", "")
-            if "Impossible Task" in blocker_status:
-                # Blocker detected - mark as impossible, not success
-                application_details["steps_completed"].append(f"Blocker detected: {form_result.get('blocker_type', 'unknown')}")
-                application_details["form_result"] = form_result.get("reason", "Unknown blocker")
-                application_details["blocker_type"] = form_result.get("blocker_type", "unknown")
-                application_details["end_time"] = datetime.now().isoformat()
-                application_details["status"] = blocker_status
-                
-                # Save log as IMPOSSIBLE_TASK
-                save_application_log(job_url, "IMPOSSIBLE_TASK", application_details)
-                
-                logger.info("")
-                logger.info("█" * 80)
-                logger.info("█" + " " * 78 + "█")
-                logger.info("█" + " " * 20 + "⚠️  IMPOSSIBLE TASK DETECTED" + " " * 30 + "█")
-                logger.info("█" + " " * 78 + "█")
-                logger.info("█" * 80)
-                logger.info("")
-                logger.info("📊 SUMMARY:")
-                logger.info(f"   🚫 Blocker Type: {form_result.get('blocker_type', 'unknown')}")
-                logger.info(f"   📝 Reason: {form_result.get('reason', 'Unknown')}")
-                logger.info(f"   ⚠️  This is NOT a failure - task cannot be automated")
-                logger.info("")
-                
-                return application_details
+        # Extract values from form_result dict (new format)
+        if isinstance(form_result, dict):
+            agent_result_str = form_result.get("agent_result", str(form_result))
+            screenshot_path = form_result.get("screenshot_path", None)
+            
+            # Add screenshot to details if captured
+            if screenshot_path:
+                application_details["screenshot"] = str(screenshot_path)
+                application_details["steps_completed"].append(f"Screenshot captured: {screenshot_path}")
+        else:
+            # Fallback for old string format
+            agent_result_str = str(form_result)
+            screenshot_path = None
+        
+        # Check if blocker was detected by parsing agent result
+        if "impossible_task=True" in agent_result_str or "impossible_task":  # Parse the agent result
+            # Try to extract blocker details from the JudgementResult
+            if "failure_reason" in agent_result_str:
+                # Extract failure reason using string parsing
+                try:
+                    failure_start = agent_result_str.find("failure_reason='")
+                    if failure_start != -1:
+                        failure_start += len("failure_reason='")
+                        failure_end = agent_result_str.find("'", failure_start)
+                        failure_reason = agent_result_str[failure_start:failure_end]
+                    else:
+                        failure_reason = "Task marked as impossible by agent"
+                except:
+                    failure_reason = "Task marked as impossible by agent"
+            else:
+                failure_reason = "Task marked as impossible by agent"
+            
+            # Determine blocker type from the failure reason
+            failure_lower = failure_reason.lower()
+            if "expired" in failure_lower:
+                blocker_type = "EXPIRED_JOB"
+            elif "captcha" in failure_lower:
+                blocker_type = "CAPTCHA"
+            elif "email" in failure_lower and "verif" in failure_lower:
+                blocker_type = "EMAIL_VERIFICATION"
+            elif "phone" in failure_lower and "verif" in failure_lower:
+                blocker_type = "PHONE_VERIFICATION"
+            elif "login" in failure_lower or "sign in" in failure_lower:
+                blocker_type = "LOGIN_REQUIRED"
+            else:
+                blocker_type = "UNKNOWN_BLOCKER"
+            
+            # Mark as IMPOSSIBLE_TASK
+            application_details["steps_completed"].append(f"Blocker detected by agent: {blocker_type}")
+            application_details["form_result"] = agent_result_str
+            application_details["blocker_type"] = blocker_type
+            application_details["blocker_reason"] = failure_reason
+            application_details["end_time"] = datetime.now().isoformat()
+            application_details["status"] = f"Impossible Task - {blocker_type}"
+            
+            # Save log as IMPOSSIBLE_TASK
+            save_application_log(job_url, "IMPOSSIBLE_TASK", application_details)
+            
+            logger.info("")
+            logger.info("█" * 80)
+            logger.info("█" + " " * 78 + "█")
+            logger.info("█" + " " * 20 + "⚠️  IMPOSSIBLE TASK DETECTED" + " " * 30 + "█")
+            logger.info("█" + " " * 78 + "█")
+            logger.info("█" * 80)
+            logger.info("")
+            logger.info("📊 SUMMARY:")
+            logger.info(f"   🚫 Blocker Type: {blocker_type}")
+            logger.info(f"   📝 Reason: {failure_reason}")
+            logger.info(f"   ⚠️  This is NOT a failure - task cannot be automated")
+            logger.info("")
+            
+            return application_details
         
         # No blocker - proceed with normal success flow
         application_details["steps_completed"].append("Application form filled and submitted")
-        application_details["form_result"] = form_result
+        application_details["form_result"] = agent_result_str if 'agent_result_str' in locals() else str(form_result)
+        
+        # Add screenshot info if available
+        if 'screenshot_path' in locals() and screenshot_path:
+            application_details["screenshot"] = str(screenshot_path)
         
         # Mark as success
         application_details["end_time"] = datetime.now().isoformat()

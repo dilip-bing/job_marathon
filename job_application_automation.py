@@ -1154,17 +1154,28 @@ Please check email inbox for verification code and complete manually."
             final_screenshot_path = SCREENSHOTS_DIR / f"{domain}_{timestamp}.png"
             
             # Check agent history for screenshots (captured with use_vision=True)
+            # We want the LAST screenshot to capture the final state (blocker, failure, or success)
             if hasattr(result, 'history') and result.history:
+                last_screenshot = None
+                last_step_num = 0
+                
+                # Iterate through ALL steps to find the LAST screenshot
                 for i, step in enumerate(result.history):
                     # Check if step has a state with screenshot_path
                     if hasattr(step, 'state') and step.state and hasattr(step.state, 'screenshot_path'):
                         if step.state.screenshot_path and os.path.exists(step.state.screenshot_path):
-                            # Copy the screenshot to our screenshots directory
-                            shutil.copy2(step.state.screenshot_path, final_screenshot_path)
-                            screenshot_path = final_screenshot_path
-                            logger.info(f"📸 Screenshot extracted from agent history (step {i+1}): {screenshot_path}")
-                            logger.info(f"   File size: {screenshot_path.stat().st_size} bytes")
-                            break  # Use the first screenshot found
+                            # Keep track of the last screenshot found
+                            last_screenshot = step.state.screenshot_path
+                            last_step_num = i + 1
+                
+                # Copy the LAST screenshot (final state) to our directory
+                if last_screenshot:
+                    shutil.copy2(last_screenshot, final_screenshot_path)
+                    screenshot_path = final_screenshot_path
+                    logger.info(f"📸 Screenshot captured: FINAL STATE from step {last_step_num}/{len(result.history)}")
+                    logger.info(f"   Path: {screenshot_path}")
+                    logger.info(f"   Size: {screenshot_path.stat().st_size} bytes")
+                    logger.info(f"   This is the last screenshot showing where the application stopped")
             
             if not screenshot_path:
                 logger.warning("⚠️  No screenshots found in agent history")

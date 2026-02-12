@@ -871,9 +871,107 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
         - Dropdowns: Select first reasonable option, NEVER leave "Select"
         - Text fields: Use "N/A" or "See resume" for unknown required fields
         - Radio buttons: Default to "NO" for yes/no questions (except work auth = YES)
-        - Checkboxes: Leave unchecked if uncertain, check if consent/agreement required
         - Multi-select courses: Select 8-12 relevant courses generously
         - Multi-select locations: Select 5-10 locations to maximize opportunities
+        
+        ⚠️⚠️⚠️ CRITICAL: CHECKBOX HANDLING - READ CAREFULLY ⚠️⚠️⚠️
+        Checkboxes are often REQUIRED to proceed. Handle them systematically:
+        
+        ✅ ALWAYS CHECK these checkboxes (these are MANDATORY):
+        1. Agreement checkboxes (CRITICAL - forms won't submit without these):
+           - "I agree to the terms and conditions"
+           - "I have read and accept the privacy policy"
+           - "I acknowledge the data processing agreement"
+           - "I consent to receive communications"
+           - "I certify that the information provided is true and accurate"
+           - "I understand and agree to the terms of employment"
+           - "I accept Workday's privacy policy" (Workday-specific)
+           - "I agree to create an account" (Account creation)
+        2. Authorization checkboxes:
+           - "I authorize background check"
+           - "I authorize verification of information"
+           - "I give consent to contact references"
+        3. Compliance checkboxes:
+           - "I am 18 years or older"
+           - "I am legally authorized to work in the US"
+        
+        🎯 CRITICAL FOR WORKDAY FORMS:
+        - The "Create Account" checkbox is MANDATORY - won't proceed without it
+        - Look for data-automation-id="createAccountCheckbox"
+        - This checkbox is often BEFORE the email/password fields
+        - Check it FIRST before filling account creation form
+        - If you see "Create Account" button disabled, the checkbox is unchecked!
+        
+        ✅ CHECK WITH CARE (read the label first):
+        1. Marketing/Newsletter: CHECK if it says "required" or has *, OTHERWISE skip
+        2. Phone/SMS consent: CHECK if it says "required" or has *, OTHERWISE skip
+        3. Additional services: CHECK only if marked mandatory
+        
+        ❌ NEVER CHECK these:
+        1. Options that cost money or require payment
+        2. Commitments you're not sure about ("I commit to relocate immediately")
+        3. Disability disclosure (leave blank unless specifically preferred)
+        
+        🔍 HOW TO CLICK CHECKBOXES - MULTIPLE STRATEGIES:
+        
+        STRATEGY 1 - Direct Click (Try First):
+        1. Locate checkbox: <input type="checkbox"> or data-automation-id="...Checkbox"
+        2. Scroll element into view (critical - checkbox must be visible)
+        3. Click directly on the checkbox element itself
+        4. Wait 500ms for visual update
+        5. Check if aria-checked changed from "false" to "true"
+        
+        STRATEGY 2 - Label Click (If Strategy 1 Fails):
+        1. Find the <label> element associated with the checkbox
+        2. Look for label with "for" attribute matching checkbox id
+        3. OR look for label text containing agreement keywords
+        4. Click the label element instead of checkbox
+        5. Wait 500ms and verify checkbox is checked
+        
+        STRATEGY 3 - Parent Container Click (Workday-specific):
+        1. Workday often wraps checkboxes in clickable <div> containers
+        2. Look for parent <div> containing the checkbox
+        3. Click the parent div element (usually has click handler)
+        4. This often toggles the checkbox state
+        5. Verify aria-checked or visual change
+        
+        STRATEGY 4 - JavaScript Force Click (Last Resort):
+        1. If none of the above work, use JavaScript
+        2. Get checkbox element reference
+        3. Execute: element.click() via JavaScript
+        4. OR execute: element.checked = true
+        5. Trigger change event: element.dispatchEvent(new Event('change'))
+        
+        STRATEGY 5 - Keyboard Space (Alternative):
+        1. Focus on the checkbox element
+        2. Press Space key to toggle
+        3. Verify state changed
+        
+        📍 WORKDAY CHECKBOX SPECIFICS:
+        - Workday checkboxes have data-automation-id="createAccountCheckbox" etc.
+        - They use aria-checked="false" / "true" to track state
+        - Visual state may not match actual checkbox.checked property
+        - The clickable area is often the PARENT div, not the input itself
+        - Label text is usually in a span NEXT to the checkbox
+        
+        ⚡ QUICK FIX FOR STUBBORN CHECKBOXES:
+        If checkbox won't check after 2 tries:
+        1. Scroll page up/down to refresh viewport
+        2. Click parent element instead of checkbox itself
+        3. Try clicking 10-20 pixels to the RIGHT of checkbox (where label usually is)
+        4. Use JavaScript: document.querySelector('[data-automation-id="createAccountCheckbox"]').click()
+        
+        ✅ VERIFICATION:
+        After clicking, ALWAYS verify:
+        - Visual: checkbox shows checkmark or filled state
+        - Attribute: aria-checked="true" or checked="checked"
+        - Don't assume click worked - verify before moving on!
+        
+        🚨 IF FORM WON'T SUBMIT - CHECK FOR UNCHECKED AGREEMENTS:
+        - Look for red error messages mentioning "must agree" or "required checkbox"
+        - Scroll through the form to find any highlighted/red checkbox fields
+        - Check ALL agreement/terms checkboxes you may have missed
+        - Try submitting again after checking missing agreements
         
         ⚠️⚠️⚠️ FINAL DATA VALIDATION CHECKLIST - BEFORE SUBMITTING ⚠️⚠️⚠️
         Before clicking Submit, mentally verify these COMMON MISTAKES are NOT present:

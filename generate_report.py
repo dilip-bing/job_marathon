@@ -441,6 +441,76 @@ def generate_html_report(output_path: str = None, job_urls: List[str] = None, re
             max-height: 0;
         }}
         
+        .log-section {{
+            margin-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+        }}
+        
+        .btn-log {{
+            background: #8b5cf6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }}
+        
+        .btn-log:hover {{
+            background: #7c3aed;
+        }}
+        
+        .log-content {{
+            margin-top: 15px;
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }}
+        
+        .log-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }}
+        
+        .log-header h4 {{
+            color: #f1f5f9;
+            margin: 0;
+        }}
+        
+        .btn-close {{
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }}
+        
+        .btn-close:hover {{
+            background: #dc2626;
+        }}
+        
+        .log-data {{
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+        }}
+        
         @media (max-width: 768px) {{
             .app-details {{
                 grid-template-columns: 1fr;
@@ -596,6 +666,23 @@ def generate_html_report(output_path: str = None, job_urls: List[str] = None, re
                 </div>
 """
         
+        # Add View Log button and collapsible log section
+        import json
+        log_json = json.dumps(log, indent=2, default=str)
+        log_json_escaped = log_json.replace('\\', '\\\\').replace("'", "\\'").replace('\n', '\\n').replace('\r', '\\r')
+        
+        html += f"""                <div class="log-section">
+                    <button class="btn btn-log" onclick="toggleLog('log-{i}')">📋 View Application Log</button>
+                    <div id="log-{i}" class="log-content" style="display: none;">
+                        <div class="log-header">
+                            <h4>Application Log Details</h4>
+                            <button class="btn-close" onclick="toggleLog('log-{i}')">✕</button>
+                        </div>
+                        <pre class="log-data">{log_json}</pre>
+                    </div>
+                </div>
+"""
+        
         html += """            </div>
 """
     
@@ -608,6 +695,15 @@ def generate_html_report(output_path: str = None, job_urls: List[str] = None, re
             element.classList.toggle('collapsed');
             const content = element.nextElementSibling;
             content.classList.toggle('collapsed');
+        }
+        
+        function toggleLog(logId) {
+            const logContent = document.getElementById(logId);
+            if (logContent.style.display === 'none') {
+                logContent.style.display = 'block';
+            } else {
+                logContent.style.display = 'none';
+            }
         }
     </script>
 </body>

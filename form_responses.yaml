@@ -1,0 +1,513 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# FORM RESPONSES CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════
+# This file contains all the standardized responses for job application forms.
+# Update these values to customize your application responses.
+
+# WORK AUTHORIZATION RESPONSES
+work_authorization:
+  legally_authorized_us:
+    question_keywords: ["legally authorized", "authorized to work", "legal right to work"]
+    answer: "YES"
+    
+  visa_status:
+    question_keywords: ["visa status", "current visa", "immigration status"]
+    answer: "F-1 Student Visa"
+    
+  require_sponsorship:
+    question_keywords: ["require sponsorship", "need sponsorship", "sponsorship required"]
+    answer: "YES"
+    note: "F-1 students need H-1B sponsorship for long-term employment"
+    
+  need_opt_cpt:
+    question_keywords: ["need OPT", "need CPT", "require OPT", "require CPT"]
+    answer: "YES"
+    note: "Only if question asks about NEEDING it in the future"
+    
+  h1b_sponsorship_only:
+    question_keywords: ["H-1B sponsorship", "H1B sponsorship", "require H-1B", "need H-1B"]
+    answer: "NO"
+    note: "If question ONLY mentions H-1B and does NOT mention OPT/CPT, answer NO (you'll use OPT/CPT first)"
+    exclusion_keywords: ["OPT", "CPT"]
+    
+  currently_on_opt_cpt:
+    question_keywords: ["currently on OPT", "currently on CPT", "already have OPT", "already have CPT"]
+    answer: "NO"
+    note: "Only if question contains 'currently' or 'already have'"
+    
+  eligible_opt_cpt:
+    question_keywords: ["eligible for OPT", "eligible for CPT", "qualify for OPT"]
+    answer: "YES"
+
+# DEMOGRAPHICS
+demographics:
+  veteran_status:
+    question_keywords: ["veteran", "military service", "armed forces"]
+    answer: "I am not a veteran"
+    alternatives: ["No", "Not a veteran", "No military service"]
+    
+  disability_status:
+    question_keywords: ["disability", "disabled", "accommodation needed"]
+    answer: "No disability"
+    alternatives: ["No", "I do not have a disability", "No accommodation needed"]
+    
+  gender:
+    question_keywords: ["gender", "sex"]
+    answer: "Male"
+    note: "Update this based on user profile"
+    
+  race_ethnicity:
+    question_keywords: ["race", "ethnicity", "ethnic background"]
+    answer: "Asian"
+    note: "Update based on user profile"
+    
+  hispanic_latino:
+    question_keywords: ["Hispanic", "Latino", "Latina"]
+    answer: "No"
+    note: "Update based on user profile"
+
+# EXTENDED DEMOGRAPHICS
+extended_demographics:
+  pronouns:
+    question_keywords: ["pronouns", "preferred pronouns", "gender pronouns"]
+    answer: "He/Him/His"
+    alternatives: ["Prefer not to say"]
+    
+  sexual_orientation:
+    question_keywords: ["sexual orientation", "identify as"]
+    answer: "Prefer not to say"
+    alternatives: ["I do not wish to provide this information", "Decline to answer"]
+    note: "Default to 'Prefer not to say' for privacy"
+    
+  lgbtq_status:
+    question_keywords: ["LGBTQ+", "identify as LGBTQ", "sexual orientation gender identity"]
+    answer: "Prefer not to say"
+    alternatives: ["Decline to self-identify"]
+
+# LANGUAGES
+languages:
+  english:
+    proficiency: "Native or Bilingual"
+    question_keywords: ["english proficiency", "english level"]
+    alternatives: ["Professional Working Proficiency", "Fluent"]
+    
+  other_languages:
+    - language: "Tamil"
+      proficiency: "Native or Bilingual"
+      note: "Based on location/origin"
+    - language: "Hindi"
+      proficiency: "Fluent"
+      note: "Common in India"
+
+# JOB SOURCE / REFERRAL
+job_source:
+  primary_sources:
+    - "LinkedIn"
+    - "Social Media"
+    - "Company Website"
+    - "Job Board"
+    - "Indeed"
+    - "Glassdoor"
+    
+  secondary_sources:
+    - "LinkedIn"
+    - "Facebook"
+    - "Twitter"
+    - "Instagram"
+    
+  default_primary: "LinkedIn"
+  default_secondary: "LinkedIn"
+  
+  rules:
+    - "Never leave 'Select' or 'Please Select' as the value"
+    - "If primary field is stuck on 'Select', try changing it to unlock options"
+    - "Prefer 'LinkedIn' or 'Social Media' as they're most common"
+
+# EDUCATION LEVEL
+education:
+  question_keywords: ["highest education", "education level", "degree level"]
+  answer: "Master's Degree"
+  alternatives: ["Masters", "MS", "Graduate Degree"]
+
+# ACADEMIC STATUS (For Current Students)
+academic_status:
+  current_student:
+    question_keywords: ["are you currently a student", "enrolled as a student", "current student status"]
+    answer: "YES"
+    
+  degree_in_progress:
+    question_keywords: ["degree pursuing", "current degree", "degree in progress"]
+    answer: "Master of Science in Computer Science"
+    
+  academic_year_fall_2026:
+    question_keywords: ["year of academic program", "what year will you be", "academic standing Fall 2026", "year starting Fall 2026"]
+    answer: "Senior / Second Year"
+    alternatives: ["Senior", "2nd Year", "Final Year", "Second Year of Masters"]
+    note: "Started Fall 2025, will be senior/2nd year in Fall 2026, graduating May 2027"
+    
+  graduation_date:
+    question_keywords: ["expected graduation", "graduation date", "when will you graduate"]
+    answer: "May 2027"
+    alternatives: ["Spring 2027", "2027-05"]
+    
+  enrollment_status:
+    question_keywords: ["full-time student", "part-time student", "enrollment status"]
+    answer: "Full-time"
+    
+  gpa:
+    question_keywords: ["current GPA", "cumulative GPA", "grade point average"]
+    answer: "3.67"
+    note: "Update from user profile if needed"
+
+# EDUCATION DETAILS (For Form Fields)
+education_details:
+  school_name: "Binghamton University"
+  school_full_name: "Binghamton University, State University of New York"
+  degree: "Master of Science"
+  major: "Computer Science"
+  concentration: "Artificial Intelligence Track"
+  gpa: "3.67"
+  start_month: "08"
+  start_year: "2025"
+  end_month: "05"
+  end_year: "2027"
+  currently_enrolled: "YES"
+  
+  # Undergraduate details
+  undergraduate:
+    school_name: "KLN College of Engineering"
+    degree: "Bachelor of Engineering"
+    major: "Electronics and Communication Engineering"
+    location: "Tamil Nadu, India"
+    start_year: "2015"
+    end_year: "2019"
+
+# COURSEWORK & COURSES
+coursework:
+  strategy: "Be generous - Select ALL relevant courses to the job and your profile"
+  
+  relevant_courses:
+    # AI/ML Courses
+    - "Machine Learning"
+    - "Data Mining"
+    - "Natural Language Processing"
+    - "Intelligent Mobile Robotics"
+    - "Deep Learning"
+    - "Artificial Intelligence"
+    - "Neural Networks"
+    - "Computer Vision"
+    
+    # Core CS Courses
+    - "Data Structures"
+    - "Algorithms"
+    - "Database Systems"
+    - "Operating Systems"
+    - "Computer Networks"
+    - "Software Engineering"
+    - "Object-Oriented Programming"
+    - "Design Patterns"
+    
+    # Programming & Development
+    - "Advanced Programming"
+    - "Systems Programming"
+    - "Web Development"
+    - "Mobile App Development"
+    - "Software Testing"
+    - "Agile Software Development"
+    
+    # Math & Theory
+    - "Discrete Mathematics"
+    - "Linear Algebra"
+    - "Probability and Statistics"
+    - "Computational Theory"
+    
+    # Specialized
+    - "Cloud Computing"
+    - "Distributed Systems"
+    - "Cybersecurity"
+    - "Human-Computer Interaction"
+    - "Internet of Things"
+    - "Embedded Systems"
+    
+  selection_rules:
+    - "If job mentions AI/ML: Select all AI/ML related courses"
+    - "If job mentions Software Engineering: Select OOP, Design Patterns, Testing, Agile"
+    - "If job mentions Backend/Systems: Select OS, Networks, Distributed Systems"
+    - "If job mentions Data: Select Data Structures, Algorithms, Database Systems, Data Mining"
+    - "Always select foundational courses (Data Structures, Algorithms, OOP)"
+    - "Select 8-12 courses total - be generous but relevant"
+
+# AVAILABILITY
+availability:
+  start_date:
+    question_keywords: ["start date", "available to start", "earliest start"]
+    answer: "Immediately"
+    alternatives: ["ASAP", "2 weeks notice", "Flexible"]
+    
+  work_schedule:
+    question_keywords: ["full time", "part time", "work schedule"]
+    answer: "Full-time"
+    
+  willing_to_relocate:
+    question_keywords: ["willing to relocate", "open to relocation"]
+    answer: "YES"
+    note: "Update based on preference"
+
+# LOCATION PREFERENCES
+location_preferences:
+  willing_to_relocate: "YES"
+  
+  preferred_locations:
+    # Tier 1 - Most Preferred
+    tier_1:
+      - "New York, NY"
+      - "New York City"
+      - "Manhattan, NY"
+      - "Brooklyn, NY"
+      - "Austin, TX"
+      - "Dallas, TX"
+      - "Houston, TX"
+      - "Charlotte, NC"
+      - "Raleigh, NC"
+      - "Research Triangle, NC"
+    
+    # Tier 2 - Tech Hubs
+    tier_2:
+      - "San Francisco, CA"
+      - "Seattle, WA"
+      - "Boston, MA"
+      - "Chicago, IL"
+      - "Denver, CO"
+      - "Atlanta, GA"
+      - "San Jose, CA"
+      - "Washington, DC"
+    
+    # Tier 3 - Any US Location  
+    tier_3:
+      - "Anywhere in the United States"
+      - "Any US location"
+      - "Open to any location"
+    
+  selection_strategy:
+    - "Prefer NY state locations first (NYC, Albany, Buffalo, Rochester)"
+    - "Then Texas (Austin, Dallas, Houston)"
+    - "Then North Carolina (Charlotte, Raleigh, Durham)"
+    - "Then major tech hubs (SF, Seattle, Boston)"
+    - "Any US location is acceptable if above not available"
+    - "Select multiple locations (5-10) to increase chances"
+  
+  remote_preference:
+    question_keywords: ["remote work", "work from home", "hybrid", "in-office"]
+    answer: "Open to Remote, Hybrid, or In-Office"
+    alternatives: ["Hybrid preferred", "Flexible"]
+
+# BACKGROUND CHECK
+background_check:
+  criminal_record:
+    question_keywords: ["criminal record", "convicted of", "felony"]
+    answer: "NO"
+    
+  background_check_consent:
+    question_keywords: ["consent to background check", "authorize background"]
+    answer: "YES"
+
+# LEGAL & COMPLIANCE
+compliance:
+  age_check:
+    question_keywords: ["are you 18", "under the age of 18", "legal age", "18 years or older"]
+    answer: "YES"
+    note: "Always YES for 'Are you 18 or older?'"
+    
+  nepotism:
+    question_keywords: ["relatives employed", "family members working", "related to anyone"]
+    answer: "NO"
+    
+  non_compete:
+    question_keywords: ["non-compete", "restrictive covenant", "agreement with current employer"]
+    answer: "NO"
+    
+  government_employment:
+    question_keywords: ["government official", "worked for government", "public official"]
+    answer: "NO"
+    
+  nda:
+    question_keywords: ["subject to nda", "non-disclosure agreement", "confidentiality agreement"]
+    answer: "NO"
+    
+  employment_eligibility:
+    question_keywords: ["Form I-9", "employment eligibility", "verify identity"]
+    answer: "YES"
+
+# SALARY / COMPENSATION
+compensation:
+  salary_expectations:
+    question_keywords: ["salary expectation", "expected salary", "desired compensation"]
+    answer: "Negotiable"
+    note: "Or provide specific range like '$80,000 - $100,000'"
+    
+  hourly_rate:
+    question_keywords: ["hourly rate", "rate per hour"]
+    answer: "Negotiable"
+
+# EXPERIENCE
+experience:
+  years_of_experience:
+    question_keywords: ["years of experience", "total experience"]
+    answer: "5+ years"
+    note: "Update based on user profile"
+    
+  years_in_role:
+    question_keywords: ["years in similar role", "years in this position"]
+    answer: "3-5 years"
+
+# CERTIFICATIONS
+certifications:
+  professional_license:
+    question_keywords: ["professional license", "licensed", "certification required"]
+    answer: "NO"
+    note: "Update if you have relevant certifications"
+
+# ADDITIONAL QUESTIONS - COMMON PATTERNS
+additional_questions:
+  why_interested:
+    question_keywords: ["why interested", "why this position", "why join us"]
+    strategy: "Extract from cover letter or generate based on job description"
+    
+  biggest_strength:
+    question_keywords: ["greatest strength", "biggest strength", "top skill"]
+    default: "Problem-solving and technical expertise in software development"
+    
+  biggest_weakness:
+    question_keywords: ["greatest weakness", "biggest weakness", "area of improvement"]
+    default: "I sometimes focus too much on perfecting details, but I've learned to balance quality with deadlines"
+    
+  cover_letter_text:
+    question_keywords: ["cover letter", "why should we hire you", "tell us about yourself"]
+    strategy: "Use generated cover letter content or professional summary"
+
+# PROJECTS (From user_profile.json)
+projects:
+  strategy: "Pull from user_profile.json projects array - select most relevant to job"
+  
+  project_list:
+    - name: "Test-Lab (Team Lead & Co-Developer)"
+      description: "Directed project planning and development for cloud-based testing software solutions. Gained hands-on experience devising a Mobile Farm site from scratch to host devices."
+      technologies: ["Project Planning", "Docker", "REST APIs", "Testing", "CI/CD"]
+      dates: "September 2024 – July 2025"
+      role: "Team Lead"
+      
+    - name: "Earthworm - Plant and Disease Detection System"
+      description: "Developed an AI diagnostic tool using Inception V3 to detect plant pathologies from imagery. Attained 95% accuracy across 17 disease categories."
+      technologies: ["Python", "TensorFlow", "Deep Learning", "Inception V3", "Computer Vision"]
+      dates: "September 2018"
+      role: "Developer"
+      
+    - name: "3D Printer & Scanner"
+      description: "Engineered a custom 3D printer and scanner, a 3D solution to produce precise 3D visualization models. Secured top rank in NIT competition."
+      technologies: ["C++", "Embedded Systems", "Computer Graphics", "3D Visualization"]
+      dates: "January 2019 – February 2019"
+      role: "Developer"
+      
+    - name: "Obstacle Avoiding Robot"
+      description: "Wrote clean, efficient C++ code for a custom algorithm enabling autonomous obstacle avoidance in an embedded system."
+      technologies: ["C++", "Embedded Systems", "Microcontrollers", "Real-Time Systems"]
+      dates: "October 2016 – November 2016"
+      role: "Developer"
+  
+  selection_rules:
+    - "If job mentions AI/ML: Highlight Earthworm project"
+    - "If job mentions DevOps/Testing: Highlight Test-Lab project"
+    - "If job mentions C++/Embedded: Highlight 3D Printer or Robot projects"
+    - "Always mention 2-3 most relevant projects"
+    - "Include technologies used and measurable outcomes"
+
+# FILE UPLOAD MAPPING
+file_uploads:
+  resume:
+    field_keywords: ["resume", "CV", "curriculum vitae", "upload resume"]
+    file_index: 0
+    required: true
+    
+  cover_letter:
+    field_keywords: ["cover letter", "upload cover letter", "additional documents"]
+    file_index: 1
+    required: false
+    note: "Upload if available"
+    
+  additional_documents:
+    field_keywords: ["additional documents", "other documents", "supporting documents"]
+    file_index: 1
+    required: false
+    note: "Use cover letter if available, otherwise skip"
+    
+  portfolio:
+    field_keywords: ["portfolio", "work samples", "projects"]
+    strategy: "Provide portfolio URL from user profile"
+    required: false
+
+# SPECIAL INSTRUCTIONS
+special_instructions:
+  dropdown_handling:
+    - "If dropdown shows only 'Select' or 'Please Select', try changing a related field first"
+    - "Some dropdowns are dependent on other field values"
+    - "Always choose an actual value, never leave 'Select'"
+    
+  error_handling:
+    - "If a field fails, skip it and continue with remaining fields"
+    - "Do NOT stop the entire process for one error"
+    - "Report all errors at the end"
+    
+  mandatory_vs_optional:
+    - "Focus ONLY on required/mandatory fields (marked with * or 'required')"
+    - "Leave optional fields empty unless easy to fill"
+    - "Skip complex optional fields"
+
+# FALLBACK STRATEGIES
+fallback_strategies:
+  dropdown_fallback:
+    strategy: "If specific value not found, select first neutral/reasonable option"
+    examples:
+      - "If looking for 'New York' but not found, select first US state"
+      - "If looking for 'LinkedIn' but not found, select 'Social Media' or 'Job Board'"
+      - "Never leave 'Select' or 'Please Select' as the value"
+    
+  text_field_fallback:
+    strategy: "For unknown required text fields, use 'N/A' or reasonable default"
+    examples:
+      - "Unknown certification: 'N/A'"
+      - "Unknown reference: 'Available upon request'"
+      - "Unknown additional info: 'See resume for details'"
+    
+  radio_fallback:
+    strategy: "Default to 'NO' for yes/no questions if uncertain"
+    examples:
+      - "Unknown compliance question: 'NO'"
+      - "Unknown restriction: 'NO'"
+      - "Unknown requirement: 'NO'"
+    note: "Exception: Work authorization questions default to 'YES'"
+    
+  checkbox_fallback:
+    strategy: "Leave unchecked if uncertain, unless it's a consent/agreement"
+    examples:
+      - "Unknown preferences: Leave unchecked"
+      - "Consent/Agreement: Check if required"
+      - "Demographics: Leave unchecked if 'Prefer not to say' option exists"
+    
+  multi_select_courses:
+    strategy: "Select 8-12 relevant courses generously"
+    priority:
+      - "Always select: Data Structures, Algorithms, OOP"
+      - "If AI/ML job: Select all AI/ML courses"
+      - "If Backend: Select Systems, Networks, Databases"
+      - "If Frontend: Select Web Dev, HCI, Design"
+      - "Fill remaining with related courses"
+    
+  multi_select_locations:
+    strategy: "Select 5-10 locations to maximize opportunities"
+    priority:
+      - "First: NY state locations (NYC, Albany, Buffalo, Rochester)"
+      - "Second: Texas (Austin, Dallas, Houston)"
+      - "Third: NC (Charlotte, Raleigh)"
+      - "Fourth: Major tech hubs (SF, Seattle, Boston)"
+      - "Fifth: Other metropolitan areas"
+      - "Last: 'Open to any location' if available"

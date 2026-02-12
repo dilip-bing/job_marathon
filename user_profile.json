@@ -1,0 +1,272 @@
+{
+  "personal_info": {
+    "full_name": "Dilip Kumar Thirukonda Chandrasekaran",
+    "first_name": "Dilip",
+    "last_name": "Thirukonda Chandrasekaran",
+    "email": "dthirukondac@binghamton.edu",
+    "phone": "(607) 624-9390",
+    "alternate_phone": "",
+    "date_of_birth": "",
+    "linkedin": "https://linkedin.com/in/dilipkumartc",
+    "github": "https://github.com/dilip-bing",
+    "portfolio": "https://dilip-bing.github.io/portfolio/",
+    "website": ""
+  },
+  
+  "address": {
+    "street": "103 Chestnut Street",
+    "apt_suite": "Apt 1",
+    "city": "Binghamton",
+    "state": "NY",
+    "zip_code": "13905",
+    "country": "United States"
+  },
+  
+  "work_authorization": {
+    "authorized_to_work_in_us": true,
+    "require_sponsorship": true,
+    "visa_status": "F-1 Student Visa",
+    "security_clearance": "None",
+    "require_opt_cpt": true,
+    "currently_on_opt_cpt": false,
+    "eligible_for_opt_cpt": true
+  },
+  
+  "professional_summary": {
+    "title": "Senior Automation Engineer",
+    "years_of_experience": 5,
+    "summary": "Experienced automation engineer specializing in software testing, QA automation, and AI/ML applications with expertise in C++, Python, Qt, and cloud-based testing solutions. Currently pursuing MS in Computer Science with AI Track.",
+    "current_company": "Binghamton University (Student)",
+    "current_role": "Graduate Student - MS Computer Science (AI Track)"
+  },
+  
+  "education": [
+    {
+      "degree": "Master of Science in Computer Science, Artificial Intelligence Track",
+      "major": "Computer Science (AI Track)",
+      "university": "Binghamton University, State University of New York",
+      "location": "Binghamton, NY",
+      "graduation_date": "2027-05",
+      "gpa": "3.67",
+      "honors": "",
+      "status": "In Progress (Expected May 2027)",
+      "relevant_coursework": "Data Structures, Machine Learning, Data Mining, Intelligent Mobile Robotics, NLP and DB Systems"
+    },
+    {
+      "degree": "Bachelor of Engineering in Electronics and Communication Engineering",
+      "major": "Electronics and Communication Engineering",
+      "university": "KLN College of Engineering",
+      "location": "Tamil Nadu, India",
+      "graduation_date": "2019-05",
+      "gpa": "",
+      "honors": "",
+      "relevant_coursework": "Object-Oriented Programming, Computer Networks"
+    }
+  ],
+  
+  "work_experience": [
+    {
+      "company": "Zoho Corporation",
+      "title": "Senior Automation Engineer",
+      "location": "Chennai, India",
+      "start_date": "2020-01",
+      "end_date": "2025-07",
+      "current": false,
+      "responsibilities": [
+        "Architected a custom software solution, an Android SDK with precision testing protocols, collaborating with engineers for the identification and resolution of software defects",
+        "Authored 50,000+ efficient test cases across platforms for the resolution of software defects",
+        "Collaborated with engineers to design, implement, and test software solutions, creating a well-documented automation environment to identify and resolve software defects",
+        "Led and mentored a team of 10 engineers as Android Department Head, driving project delivery with Agile methodologies",
+        "Directed the QA lifecycle and project planning as Automation Lead for Zoho Calendar, implementing technical documentation to strengthen engineering capabilities"
+      ]
+    }
+  ],
+  
+  "skills": {
+    "programming_languages": [
+      "Modern C++",
+      "Python",
+      "JavaScript",
+      "Rust",
+      "Flutter",
+      "C",
+      "QML",
+      "SQL"
+    ],
+    "frameworks_libraries": [
+      "Qt",
+      "TensorFlow",
+      "Deep Learning",
+      "Inception V3",
+      "LangChain",
+      "FastAPI",
+      "Django",
+      "Flask"
+    ],
+    "databases": [
+      "PostgreSQL",
+      "MySQL",
+      "MongoDB",
+      "Database Systems"
+    ],
+    "cloud_devops": [
+      "Docker",
+      "CI/CD",
+      "GitHub",
+      "Version Control",
+      "Agile",
+      "REST APIs"
+    ],
+    "tools_technologies": [
+      "Qt",
+      "QML",
+      "C++ Compilers (GCC/Clang)",
+      "Linux/Unix",
+      "VS Code",
+      "Testing",
+      "Debugging",
+      "OOD",
+      "Desktop Applications",
+      "Embedded Systems",
+      "Computer Graphics",
+      "3D Visualization",
+      "Microcontrollers",
+      "Real-Time Systems"
+    ],
+    "ai_ml": [
+      "Machine Learning",
+      "Data Mining",
+      "Natural Language Processing",
+      "Intelligent Mobile Robotics",
+      "Computer Vision",
+      "AI Diagnostic Tools",
+      "Deep Learning",
+      "TensorFlow"
+    ]
+  },
+  
+  "certifications": [
+  ],
+  
+  "projects": [
+    {
+      "name": "Test-Lab (Team Lead & Co-Developer)",
+      "description": "Directed project planning and development for cloud-based testing software solutions. Gained hands-on experience devising a Mobile Farm site from scratch to host devices, enabling execution of automation and manual software development testing cycles.",
+      "technologies": ["Project Planning", "Docker", "REST APIs", "Testing", "CI/CD", "Software Solutions"],
+      "dates": "September 2024 – July 2025",
+      "url": ""
+    },
+    {
+      "name": "Earthworm - Plant and Disease Detection System",
+      "description": "Developed an AI diagnostic tool using Inception V3 to detect plant pathologies from imagery. Attained 95% accuracy across 17 disease categories by training the model on datasets.",
+      "technologies": ["Python", "TensorFlow", "Deep Learning", "Inception V3", "Computer Vision"],
+      "dates": "September 2018",
+      "url": ""
+    },
+    {
+      "name": "3D Printer & Scanner",
+      "description": "Engineered a custom 3D printer and scanner, a 3D solution to produce precise 3D visualization models. Secured top rank in NIT competition for innovative design.",
+      "technologies": ["C++", "Embedded Systems", "Computer Graphics", "3D Visualization"],
+      "dates": "January 2019 – February 2019",
+      "url": ""
+    },
+    {
+      "name": "Obstacle Avoiding Robot",
+      "description": "Wrote clean, efficient C++ code for a custom algorithm enabling autonomous obstacle avoidance in an embedded system. Secured top ranking in PHYSICA'16 competition for innovative robotics design and autonomous navigation.",
+      "technologies": ["C++", "Embedded Systems", "Microcontrollers", "Real-Time Systems"],
+      "dates": "October 2016 – November 2016",
+      "url": ""
+    }
+  ],
+  
+  "preferences": {
+    "desired_salary": "80000",
+    "salary_currency": "USD",
+    "salary_period": "per year",
+    "willing_to_relocate": true,
+    "willing_to_travel": true,
+    "travel_percentage": 25,
+    "remote_preference": "Hybrid or Remote",
+    "start_date": "After graduation (May 2027) or internship opportunities",
+    "employment_type": ["Full-time", "Internship", "Co-op"],
+    "work_schedule": "Flexible"
+  },
+  
+  "demographics": {
+    "gender": "",
+    "ethnicity": "",
+    "veteran_status": "I am not a veteran",
+    "disability_status": "No disability"
+  },
+  
+  "references": [
+    {
+      "name": "John Smith",
+      "title": "Engineering Manager",
+      "company": "Tech Solutions Inc.",
+      "email": "john.smith@example.com",
+      "phone": "+1-555-123-4567",
+      "relationship": "Direct Supervisor"
+    },
+    {
+      "name": "Sarah Johnson",
+      "title": "Senior Developer",
+      "company": "StartupXYZ",
+      "email": "sarah.j@example.com",
+      "phone": "+1-555-987-6543",
+      "relationship": "Colleague"
+    }
+  ],
+  
+  "additional_info": {
+    "how_did_you_hear": "Social Media",
+    "source_primary": "Social Media",
+    "source_secondary": "LinkedIn",
+    "referred_by": "",
+    "why_interested": "I am passionate about building robust automation solutions and AI-powered systems. With 5+ years of experience in software testing and automation engineering, combined with my current pursuit of an MS in Computer Science with AI Track, I am excited about opportunities to contribute to innovative projects.",
+    "cover_letter_intro": "I am writing to express my strong interest in the position. With 5+ years of automation engineering experience at Zoho Corporation and currently pursuing an MS in Computer Science (AI Track) at Binghamton University, I bring a unique combination of practical testing expertise and advanced AI/ML knowledge.",
+    "additional_notes": "Currently a graduate student (MS Computer Science - AI Track) at Binghamton University, expected graduation May 2027. Seeking internship, co-op, or full-time opportunities in software engineering, automation, AI/ML, or QA engineering. On F-1 visa, eligible for OPT/CPT."
+  },
+  
+  "social_media": {
+    "twitter": "",
+    "stackoverflow": "https://stackoverflow.com/users/dilip-kumar",
+    "medium": "",
+    "youtube": ""
+  },
+  
+  "languages": [
+    {
+      "language": "English",
+      "proficiency": "Native"
+    },
+    {
+      "language": "Hindi",
+      "proficiency": "Fluent"
+    }
+  ],
+  
+  "questionnaire_defaults": {
+    "years_experience_cpp": "5",
+    "years_experience_python": "5",
+    "years_experience_javascript": "4",
+    "years_experience_qt": "5",
+    "years_experience_testing": "5",
+    "years_experience_automation": "5",
+    "years_experience_docker": "3",
+    "comfortable_with_remote": "Yes",
+    "available_for_interview": "Yes",
+    "notice_period": "Student - Available after May 2027 or for internships immediately",
+    "expected_salary": "80000-100000",
+    "willing_to_take_assessment": "Yes",
+    "current_student": "Yes",
+    "graduation_date": "May 2027",
+    "visa_status": "F-1 Student Visa",
+    "need_sponsorship": "Yes",
+    "need_opt_cpt": "Yes",
+    "currently_on_opt_cpt": "No",
+    "veteran": "No",
+    "disability": "No",
+    "job_source": "Social Media - LinkedIn"
+  }
+}

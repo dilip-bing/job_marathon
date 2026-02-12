@@ -1,0 +1,26 @@
+# Job Application Automation - Python Dependencies
+
+# Browser Automation
+browser-use>=0.1.0
+playwright>=1.40.0
+
+# AI/LLM Libraries
+langchain>=0.1.0
+langchain-google-genai>=1.0.0
+
+# HTTP Requests
+requests>=2.31.0
+
+# Data Processing
+python-dateutil>=2.8.2
+pyyaml>=6.0.1
+
+# Environment Variables (optional)
+python-dotenv>=1.0.0
+
+# Logging & Utilities
+coloredlogs>=15.0.1
+
+# Testing (optional)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

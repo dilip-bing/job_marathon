@@ -292,7 +292,7 @@ def save_batch_report(results: List[Dict], start_time: datetime, end_time: datet
 # MAIN BATCH PROCESSING
 # ═══════════════════════════════════════════════════════════════════════════
 
-async def process_single_job(company: Dict, index: int, total: int, skip_generation: bool = False) -> Dict:
+async def process_single_job(company: Dict, index: int, total: int, skip_generation: bool = False, headless: bool = False) -> Dict:
     """
     Process a single job application.
     
@@ -301,6 +301,7 @@ async def process_single_job(company: Dict, index: int, total: int, skip_generat
         index: Current job index (0-based)
         total: Total number of jobs
         skip_generation: Whether to skip document generation
+        headless: Whether to run browser in headless mode
         
     Returns:
         Result dictionary with status and details
@@ -350,7 +351,7 @@ async def process_single_job(company: Dict, index: int, total: int, skip_generat
         
         # Run automation for this job
         company_logger.info("Starting automation...")
-        application_result = await automate_job_application(job_url, skip_generation=skip_generation, job_index=index)
+        application_result = await automate_job_application(job_url, skip_generation=skip_generation, job_index=index, headless=headless)
         
         # Mark as success
         result["status"] = "success"
@@ -396,7 +397,7 @@ async def process_single_job(company: Dict, index: int, total: int, skip_generat
     
     return result
 
-async def batch_process_jobs_parallel(skip_generation: bool = False, company_list_path: Path = None, limit: int = None):
+async def batch_process_jobs_parallel(skip_generation: bool = False, company_list_path: Path = None, limit: int = None, headless: bool = False):
     """
     Process ALL jobs in parallel (simultaneously).
     
@@ -407,6 +408,7 @@ async def batch_process_jobs_parallel(skip_generation: bool = False, company_lis
         skip_generation: If True, skip resume/cover letter generation for all jobs
         company_list_path: Optional custom path to company list JSON file
         limit: Optional limit on number of jobs to process (for testing)
+        headless: If True, run browser in headless mode (no window visible)
     """
     
     start_time = datetime.now()
@@ -439,18 +441,18 @@ async def batch_process_jobs_parallel(skip_generation: bool = False, company_lis
         logger.info("🚀 Launching all jobs in parallel with staggered start...")
         logger.info("")
         
-        async def delayed_job(company, index, total, skip_gen, delay_seconds):
+        async def delayed_job(company, index, total, skip_gen, headless_mode, delay_seconds):
             """Start job after delay to avoid overwhelming the resume API."""
             if delay_seconds > 0:
                 logger.info(f"⏳ Job {index+1}/{total}: Waiting {delay_seconds}s before start...")
                 await asyncio.sleep(delay_seconds)
-            return await process_single_job(company, index, total, skip_gen)
+            return await process_single_job(company, index, total, skip_gen, headless_mode)
         
         tasks = []
         stagger_delay = 0  # Start all jobs immediately for true parallel execution
         for i, company in enumerate(companies):
             delay = i * stagger_delay  # All will be 0s - simultaneous start
-            task = delayed_job(company, i, total_jobs, skip_generation, delay)
+            task = delayed_job(company, i, total_jobs, skip_generation, headless, delay)
             tasks.append(task)
         
         if total_jobs > 1:
@@ -532,7 +534,7 @@ async def batch_process_jobs_parallel(skip_generation: bool = False, company_lis
         raise
 
 async def batch_process_jobs(skip_generation: bool = False, resume_from_progress: bool = False, 
-                            company_list_path: Path = None, limit: int = None):
+                            company_list_path: Path = None, limit: int = None, headless: bool = False):
     """
     Process all jobs from company_list.json one by one.
     
@@ -541,6 +543,7 @@ async def batch_process_jobs(skip_generation: bool = False, resume_from_progress
         resume_from_progress: If True, resume from previous progress
         company_list_path: Optional custom path to company list JSON file
         limit: Optional limit on number of jobs to process (for testing)
+        headless: If True, run browser in headless mode (no window visible)
     """
     
     start_time = datetime.now()
@@ -605,7 +608,7 @@ async def batch_process_jobs(skip_generation: bool = False, resume_from_progress
             save_progress(progress)
             
             # Process this job
-            result = await process_single_job(company, i, total_jobs, skip_generation)
+            result = await process_single_job(company, i, total_jobs, skip_generation, headless)
             results.append(result)
             
             # Update progress
@@ -732,6 +735,12 @@ Examples:
         help='Run all jobs in parallel (WARNING: Opens multiple browsers simultaneously)'
     )
     
+    parser.add_argument(
+        '--headless',
+        action='store_true',
+        help='Run browser in headless mode (no window visible, faster)'
+    )
+    
     args = parser.parse_args()
     
     # Determine company list path
@@ -744,6 +753,7 @@ Examples:
     logger.info(f"   Mode: {'TEST (skip generation)' if args.skip_generation else 'NORMAL (generate docs)'}")
     logger.info(f"   Resume: {'YES (skip already processed)' if args.resume else 'NO (process all)'}")
     logger.info(f"   Parallel: {'YES (all jobs at once)' if args.parallel else 'NO (sequential)'}")
+    logger.info(f"   Browser: {'HEADLESS (no window)' if args.headless else 'NORMAL (window visible)'}")
     logger.info(f"   Logs Directory: {LOGS_DIR}")
     logger.info(f"   Company Logs: {COMPANY_LOGS_DIR}")
     logger.info(f"   Screenshots: {SCREENSHOTS_DIR}")
@@ -760,14 +770,16 @@ Examples:
             await batch_process_jobs_parallel(
                 skip_generation=args.skip_generation,
                 company_list_path=company_list_path,
-                limit=args.limit
+                limit=args.limit,
+                headless=args.headless
             )
         else:
             await batch_process_jobs(
                 skip_generation=args.skip_generation,
                 resume_from_progress=args.resume,
                 company_list_path=company_list_path,
-                limit=args.limit
+                limit=args.limit,
+                headless=args.headless
             )
     except KeyboardInterrupt:
         logger.info("Exiting...")

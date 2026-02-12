@@ -555,7 +555,7 @@ async def generate_documents_parallel(job_description: str, user_profile: Dict) 
 # STEP 5-9: FILL APPLICATION FORM
 # ═══════════════════════════════════════════════════════════════════════════
 
-async def fill_application_form(job_url: str, user_profile: Dict, resume_path: str, cover_letter_path: Optional[str]):
+async def fill_application_form(job_url: str, user_profile: Dict, resume_path: str, cover_letter_path: Optional[str], headless: bool = False):
     """
     Use browser-use agent to fill out job application form.
     
@@ -1123,7 +1123,7 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
             logger.info(f"   [1] Cover Letter: {cover_letter_absolute}")
         
         # Create browser instance
-        browser = Browser(cross_origin_iframes=True)
+        browser = Browser(cross_origin_iframes=True, headless=headless)
         
         # ═══════════════════════════════════════════════════════════════════════════
         # 🔍 PRE-CHECK: Detect blockers and login walls before agent execution
@@ -1393,7 +1393,7 @@ def find_latest_documents() -> Tuple[Optional[str], Optional[str]]:
 # MAIN AUTOMATION WORKFLOW
 # ═══════════════════════════════════════════════════════════════════════════
 
-async def automate_job_application(job_url: str, skip_generation: bool = False, job_index: int = 0):
+async def automate_job_application(job_url: str, skip_generation: bool = False, job_index: int = 0, headless: bool = False):
     """
     Main workflow to automate job application.
     
@@ -1464,7 +1464,7 @@ async def automate_job_application(job_url: str, skip_generation: bool = False, 
             application_details["cover_letter_path"] = cover_letter_path or "NOT GENERATED"
         
         # Steps 5-9: Fill application form and submit
-        form_result = await fill_application_form(job_url, user_profile, resume_path, cover_letter_path)
+        form_result = await fill_application_form(job_url, user_profile, resume_path, cover_letter_path, headless=headless)
         
         # Extract values from form_result dict (new format)
         if isinstance(form_result, dict):
@@ -1645,6 +1645,11 @@ Examples:
         default="https://www.example.com/jobs/12345",
         help='Job posting URL to apply to'
     )
+    parser.add_argument(
+        '--headless',
+        action='store_true',
+        help='Run browser in headless mode (no window visible, faster)'
+    )
     
     args = parser.parse_args()
     
@@ -1653,6 +1658,7 @@ Examples:
     
     logger.info("Configuration:")
     logger.info(f"   Mode: {'TEST (skip generation)' if args.skip_generation else 'NORMAL (generate new docs)'}")
+    logger.info(f"   Browser: {'HEADLESS (no window)' if args.headless else 'NORMAL (window visible)'}")
     logger.info(f"   Job URL: {JOB_URL}")
     logger.info(f"   User Profile: {USER_PROFILE_PATH}")
     logger.info(f"   Documents Directory: {GENERATED_DOCS_DIR}")
@@ -1682,7 +1688,7 @@ Examples:
     
     # Run automation
     try:
-        await automate_job_application(JOB_URL, skip_generation=args.skip_generation)
+        await automate_job_application(JOB_URL, skip_generation=args.skip_generation, headless=args.headless)
         
         # Generate HTML report for this run
         try:

@@ -34,11 +34,11 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # ═══════════════════════════════════════════════════════════════════════════
 
 # Model for job scraping (faster, cheaper)
-SCRAPING_MODEL = "gemini-2.5-pro"  # Pro model
+SCRAPING_MODEL = "gemini-3-flash-preview"  # Flash preview model (switched due to quota)
 SCRAPING_TEMPERATURE = 0.3
 
 # Model for form filling (more accurate, better reasoning)
-FORM_FILLING_MODEL = "gemini-2.5-pro"  # Stable Pro model, handles long contexts better
+FORM_FILLING_MODEL = "gemini-3-flash-preview"  # Flash preview model (switched due to quota)
 FORM_FILLING_TEMPERATURE = 0.3
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -56,6 +56,9 @@ GENERATED_DOCS_DIR = BASE_DIR / "generated_documents"
 
 # Logs directory
 LOGS_DIR = BASE_DIR / "logs"
+
+# Screenshots directory
+SCREENSHOTS_DIR = LOGS_DIR / "screenshots"
 
 # Application log file
 APPLICATION_LOG_FILE = LOGS_DIR / "application_log.json"
@@ -112,6 +115,7 @@ def validate_configuration():
     # Create directories if they don't exist
     GENERATED_DOCS_DIR.mkdir(exist_ok=True)
     LOGS_DIR.mkdir(exist_ok=True)
+    SCREENSHOTS_DIR.mkdir(exist_ok=True, parents=True)
     
     if errors:
         error_msg = "\n".join([f"  - {err}" for err in errors])

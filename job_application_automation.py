@@ -43,6 +43,7 @@ from config import (
     GEMINI_API_KEY,
     SCRAPING_MODEL,
     FORM_FILLING_MODEL,
+    SCREENSHOTS_DIR,
     SCRAPING_TEMPERATURE,
     FORM_FILLING_TEMPERATURE
 )
@@ -1161,6 +1162,37 @@ async def automate_job_application(job_url: str, skip_generation: bool = False, 
         
         # Steps 5-9: Fill application form and submit
         form_result = await fill_application_form(job_url, user_profile, resume_path, cover_letter_path)
+        
+        # Check if blocker was detected (form_result is dict with status key)
+        if isinstance(form_result, dict) and "status" in form_result:
+            blocker_status = form_result.get("status", "")
+            if "Impossible Task" in blocker_status:
+                # Blocker detected - mark as impossible, not success
+                application_details["steps_completed"].append(f"Blocker detected: {form_result.get('blocker_type', 'unknown')}")
+                application_details["form_result"] = form_result.get("reason", "Unknown blocker")
+                application_details["blocker_type"] = form_result.get("blocker_type", "unknown")
+                application_details["end_time"] = datetime.now().isoformat()
+                application_details["status"] = blocker_status
+                
+                # Save log as IMPOSSIBLE_TASK
+                save_application_log(job_url, "IMPOSSIBLE_TASK", application_details)
+                
+                logger.info("")
+                logger.info("█" * 80)
+                logger.info("█" + " " * 78 + "█")
+                logger.info("█" + " " * 20 + "⚠️  IMPOSSIBLE TASK DETECTED" + " " * 30 + "█")
+                logger.info("█" + " " * 78 + "█")
+                logger.info("█" * 80)
+                logger.info("")
+                logger.info("📊 SUMMARY:")
+                logger.info(f"   🚫 Blocker Type: {form_result.get('blocker_type', 'unknown')}")
+                logger.info(f"   📝 Reason: {form_result.get('reason', 'Unknown')}")
+                logger.info(f"   ⚠️  This is NOT a failure - task cannot be automated")
+                logger.info("")
+                
+                return application_details
+        
+        # No blocker - proceed with normal success flow
         application_details["steps_completed"].append("Application form filled and submitted")
         application_details["form_result"] = form_result
         

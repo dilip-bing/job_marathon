@@ -13,6 +13,10 @@ Date: February 11, 2026
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ═══════════════════════════════════════════════════════════════════════════
 # API CONFIGURATION
@@ -20,10 +24,10 @@ from pathlib import Path
 
 # Resume & Cover Letter API
 RESUME_API_URL = "https://resume-optimizer-api-fvpd.onrender.com"
-RESUME_API_KEY = "nFDqvbuNJb4dwsoL9E6HfyTaPC-O2oeHvK-y1RWDSGU"
+RESUME_API_KEY = os.getenv("RESUME_API_KEY")
 
 # Google Gemini API (for browser-use agent)
-GEMINI_API_KEY = "AIzaSyA3_TlXuEFkCnTN55CrhfusNffMCqXmzDA"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # ═══════════════════════════════════════════════════════════════════════════
 # MODEL CONFIGURATION

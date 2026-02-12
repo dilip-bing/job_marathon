@@ -861,6 +861,103 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
         22. Wait for confirmation page or success message
         23. Report the submission status and which files uploaded successfully
         
+        ⚠️⚠️⚠️ POST-SUBMIT VALIDATION ERROR HANDLING - CRITICAL ⚠️⚠️⚠️
+        
+        After clicking Submit, the form may show validation errors for incomplete/incorrect fields.
+        You MUST handle these errors systematically:
+        
+        📋 POST-SUBMIT ERROR RESOLUTION PROCESS:
+        
+        STEP 1: After clicking Submit, WAIT 2-3 seconds for page to respond
+        
+        STEP 2: Check if you're on a NEW page (confirmation/thank you) or SAME page (errors exist)
+           - NEW page indicators: "Thank you", "Application submitted", "Confirmation", different URL
+           - SAME page indicators: Still on form, URL unchanged, error messages visible
+        
+        STEP 3: If SAME page, scan for validation errors:
+           
+           🔍 ERROR INDICATORS TO LOOK FOR:
+           1. Red or highlighted field borders (border-color: red, #ff0000, #dc2626, etc.)
+           2. Error messages near fields (usually in red text, aria-invalid="true")
+           3. Field labels marked with red asterisk or exclamation mark
+           4. Error summary at top of page: "Please fix the following errors"
+           5. Fields with aria-describedby pointing to error messages
+           6. Validation messages like "This field is required", "Invalid format", "Please select an option"
+           7. Dropdowns still showing "Select" or "Please Select" with red borders
+           8. Unchecked required checkboxes with error indicators
+           
+           🎯 HOW TO FIND ERROR FIELDS:
+           - Use find_elements with selector: '[aria-invalid="true"]', '.error', '.invalid', '[required]:invalid'
+           - Look for elements with text content containing: "required", "error", "invalid", "must"
+           - Scan for red-colored elements (color: red, rgb(220, 38, 38), #dc2626, etc.)
+           - Check for fields with empty values that show error borders
+        
+        STEP 4: Fix each error field ONE BY ONE:
+           
+           ✅ FOR EACH ERROR FIELD FOUND:
+           a) Identify what's wrong:
+              - Field is empty but required
+              - Dropdown still shows "Select" or placeholder
+              - Invalid format (phone, email, date, GPA)
+              - Checkbox not checked
+              - Text field has wrong data type (text in number field)
+           
+           b) Fix the specific issue:
+              - Empty required field → Fill with appropriate data from profile
+              - Dropdown with "Select" → Choose first valid option
+              - Invalid phone → Re-enter as (607) 624-9390
+              - Invalid email → Re-enter as dthirukondac@binghamton.edu
+              - Invalid GPA → Re-enter as just "3.67" (no text, no merging)
+              - Invalid graduation year → Re-enter as just "2027" (numbers only)
+              - Unchecked required checkbox → Check it
+              - Wrong data type → Clear and re-enter with correct format
+           
+           c) IMPORTANT - ONLY fix fields that SHOW errors:
+              - DO NOT modify fields that are working correctly
+              - DO NOT touch fields with no error indicators
+              - Only change fields with visible validation errors
+        
+        STEP 5: After fixing ALL error fields, scroll to top/bottom to find Submit button again
+        
+        STEP 6: Click Submit button AGAIN
+        
+        STEP 7: Wait 2-3 seconds and repeat STEP 2-6 until:
+           - You reach confirmation/thank you page (SUCCESS), OR
+           - Same errors persist after 2 attempts (report the specific persistent errors)
+        
+        📊 COMMON VALIDATION ERRORS & FIXES:
+        
+        | Error Type | Indicator | Fix |
+        |------------|-----------|-----|
+        | Empty required field | Red border, "required" message | Fill with profile data |
+        | Dropdown = "Select" | Red border, still shows placeholder | Select first valid option |
+        | Invalid phone format | "Invalid format" message | Re-enter as (607) 624-9390 |
+        | Invalid GPA | "Must be number" or "Invalid" | Clear and enter just "3.67" |
+        | Invalid year | "Invalid" or "Must be 4 digits" | Clear and enter just "2027" |
+        | Merged data | "Invalid format" | Clear and separate into correct fields |
+        | Unchecked agreement | "Must agree" or red checkbox | Check the checkbox |
+        | Email format | "Invalid email" | Re-enter dthirukondac@binghamton.edu |
+        | Date format | "Invalid date" | Re-format as MM/DD/YYYY or YYYY-MM-DD |
+        
+        🎯 EXAMPLE ERROR RESOLUTION FLOW:
+        
+        1. Click Submit → Page stays same (errors exist)
+        2. Scan page → Find 3 fields with red borders:
+           - GPA field shows "20273.67" → Clear, enter "3.67"
+           - Country dropdown shows "Select" → Select "United States"
+           - Privacy checkbox unchecked with red label → Check it
+        3. All errors fixed → Scroll to Submit button
+        4. Click Submit again → New page appears with "Thank you"
+        5. SUCCESS - report completion
+        
+        ⚠️ CRITICAL RULES:
+        - NEVER skip error checking after submit
+        - ALWAYS wait for page response before assuming success
+        - Fix errors systematically, not all at once
+        - Re-submit after fixing errors
+        - Report persistent errors if can't be resolved after 2 attempts
+        - DO NOT modify correctly filled fields when fixing errors
+        
         IMPORTANT ERROR HANDLING:
         - If a dropdown only shows "Select" or "Please Select", try changing a related field first
         - If file upload doesn't work, note it and continue
@@ -1001,7 +1098,14 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
         - Any errors you encountered (but keep going despite errors)
         - Overall form completion percentage
         - Whether Submit button was clicked
-        - Whether confirmation/thank you page appeared
+        - POST-SUBMIT VALIDATION ERRORS (if any):
+          * How many validation errors appeared after first submit
+          * Which fields had errors (field name + error message)
+          * Which errors you fixed and how
+          * Whether you had to submit multiple times
+          * Whether errors persisted after fixes
+        - Whether confirmation/thank you page appeared after final submit
+        - Final status: Success (on confirmation page) OR Failed (stuck on form with errors)
         """
         
         logger.info("Creating browser-use agent for form filling...")

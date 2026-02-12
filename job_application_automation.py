@@ -32,6 +32,10 @@ import requests
 import base64
 from browser_use import Agent, ChatGoogle, Browser
 
+# Import handlers for login and blocker detection
+from login_handler import detect_and_bypass_login
+from blocker_handler import check_for_blockers, get_blocker_detection_prompt
+
 # Import configuration
 from config import (
     RESUME_API_URL,
@@ -918,7 +922,77 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
         # Create browser instance
         browser = Browser(cross_origin_iframes=True)
         
-        # Create and run agent with file upload support
+        # ═══════════════════════════════════════════════════════════════════════════
+        # 🔍 PRE-CHECK: Detect blockers and login walls before agent execution
+        # ═══════════════════════════════════════════════════════════════════════════
+        logger.info("🔍 Pre-checking page for blockers and login requirements...")
+        
+        try:
+            # Navigate to page to extract content for analysis
+            page = await browser.new_page()
+            await page.goto(job_url, wait_until='domcontentloaded', timeout=30000)
+            page_text = await page.text_content('body')
+            logger.info(f"   Page loaded, extracted {len(page_text)} characters for analysis")
+            
+            # Check for impossible blockers (email verification, CAPTCHA, expired jobs)
+            is_blocked, blocker_type, blocker_reason, is_impossible = check_for_blockers(
+                page_text=page_text,
+                url=job_url
+            )
+            
+            if is_blocked and is_impossible:
+                logger.warning(f"🚫 IMPOSSIBLE TASK DETECTED: {blocker_reason}")
+                logger.warning(f"   Blocker Type: {blocker_type.value}")
+                logger.warning(f"   This is NOT a failure - task cannot be automated")
+                
+                await page.close()
+                await browser.close()
+                
+                return {
+                    "status": f"Impossible Task - {blocker_type.value}",
+                    "blocker_type": blocker_type.value,
+                    "reason": blocker_reason,
+                    "form_result": blocker_reason
+                }
+            elif is_blocked:
+                logger.info(f"⚠️  Soft blocker detected: {blocker_reason}")
+                logger.info(f"   Will attempt to proceed...")
+            else:
+                logger.info("✅ No hard blockers detected")
+            
+            # Check for login requirements
+            needs_bypass, platform, bypass_prompt = detect_and_bypass_login(
+                page_text=page_text,
+                url=job_url
+            )
+            
+            if needs_bypass:
+                logger.warning(f"🚫 Login wall detected on {platform} platform")
+                logger.info(f"   Enhancing agent prompt with bypass instructions...")
+                # Inject bypass instructions into agent's task
+                fill_form_task = fill_form_task + "\n\n" + bypass_prompt
+            else:
+                logger.info("✅ No login wall detected")
+            
+            # Add blocker detection awareness to agent prompt
+            fill_form_task = fill_form_task + "\n\n" + get_blocker_detection_prompt()
+            
+            # Close pre-check page (agent will create its own browser session)
+            await page.close()
+            
+            logger.info("✅ Pre-check completed, creating agent...")
+            
+        except Exception as e:
+            logger.warning(f"⚠️  Pre-check failed: {e}")
+            logger.info(f"   Proceeding with agent anyway...")
+            # If pre-check fails, still add blocker detection to prompt
+            fill_form_task = fill_form_task + "\n\n" + get_blocker_detection_prompt()
+        
+        # ═══════════════════════════════════════════════════════════════════════════
+        # End of pre-check
+        # ═══════════════════════════════════════════════════════════════════════════
+        
+        # Create and run agent with file upload support (prompt may be enhanced)
         agent = Agent(
             task=fill_form_task,
             llm=llm,

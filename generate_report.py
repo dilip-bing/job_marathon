@@ -18,7 +18,7 @@ from typing import List, Dict
 import base64
 
 # Import config
-from config import LOGS_DIR, SCREENSHOTS_DIR, APPLICATION_LOG_FILE
+from config import LOGS_DIR, SCREENSHOTS_DIR, APPLICATION_LOG_FILE, REPORTS_DIR
 
 
 def load_application_logs() -> List[Dict]:
@@ -91,21 +91,49 @@ def get_status_icon(status: str) -> str:
         return '❓'
 
 
-def generate_html_report(output_path: str = None) -> str:
+def generate_html_report(output_path: str = None, job_urls: List[str] = None, report_name: str = None, last_n_minutes: int = None) -> str:
     """
     Generate HTML report from application logs.
     
     Args:
-        output_path: Path to save HTML report (default: logs/report.html)
+        output_path: Path to save HTML report (default: auto-generated unique name)
+        job_urls: Optional list of job URLs to filter (only include these jobs)
+        report_name: Optional custom report name (e.g., 'batch_03', 'renesas_test')
+        last_n_minutes: Optional - only include logs from last N minutes (for single-job runs)
     
     Returns:
         Path to generated report
     """
+    # Generate unique report name if not specified
     if output_path is None:
-        output_path = LOGS_DIR / "report.html"
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        if report_name:
+            filename = f"report_{report_name}_{timestamp}.html"
+        else:
+            filename = f"report_{timestamp}.html"
+        output_path = REPORTS_DIR / filename
     
     # Load logs
-    logs = load_application_logs()
+    all_logs = load_application_logs()
+    
+    # Apply time-based filter first (for single-job runs)
+    if last_n_minutes is not None:
+        from datetime import timedelta
+        cutoff_time = datetime.now() - timedelta(minutes=last_n_minutes)
+        all_logs = [
+            log for log in all_logs 
+            if datetime.fromisoformat(log.get('timestamp', '2000-01-01T00:00:00')) > cutoff_time
+        ]
+    
+    # Filter logs if job_urls provided
+    if job_urls:
+        logs = [log for log in all_logs if log.get('job_url') in job_urls]
+        if not logs:
+            print(f"⚠️  No logs found for specified job URLs in the filtered time range")
+            # Don't fall back to all logs - user wants specific jobs only
+            logs = []
+    else:
+        logs = all_logs
     
     # Count statistics
     total = len(logs)

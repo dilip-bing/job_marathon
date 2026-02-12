@@ -1015,17 +1015,61 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
         logger.info(f"{str(result)}")
         logger.info("")
         
-        # Capture screenshot
+        # Capture screenshot from agent's browser
+        screenshot_path = None
         try:
             from urllib.parse import urlparse
-            from datetime import datetime
             domain = urlparse(job_url).netloc.replace('www.', '').split('.')[0]
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             screenshot_path = SCREENSHOTS_DIR / f"{domain}_{timestamp}.png"
-            await page.screenshot(path=str(screenshot_path), full_page=True)
-            logger.info(f"📸 Screenshot saved: {screenshot_path}")
+            
+            # Try multiple methods to get the current page
+            current_page = None
+            
+            # Method 1: Access from agent.browser
+            if hasattr(agent, 'browser'):
+                try:
+                    if hasattr(agent.browser, 'context') and agent.browser.context:
+                        pages = agent.browser.context.pages
+                        if pages and len(pages) > 0:
+                            current_page = pages[-1]
+                            logger.info("✓ Got page from agent.browser.context")
+                except Exception:
+                    pass
+            
+            # Method 2: Access from browser.contexts list
+            if not current_page and hasattr(browser, 'contexts'):
+                try:
+                    contexts = browser.contexts
+                    if contexts and len(contexts) > 0:
+                        pages = contexts[0].pages
+                        if pages and len(pages) > 0:
+                            current_page = pages[-1]
+                            logger.info("✓ Got page from browser.contexts[0]")
+                except Exception:
+                    pass
+            
+            # Method 3: Access from browser.context directly
+            if not current_page and hasattr(browser, 'context'):
+                try:
+                    if browser.context:
+                        pages = browser.context.pages
+                        if pages and len(pages) > 0:
+                            current_page = pages[-1]
+                            logger.info("✓ Got page from browser.context")
+                except Exception:
+                    pass
+            
+            # Capture screenshot if we got a page
+            if current_page:
+                await current_page.screenshot(path=str(screenshot_path), full_page=True)
+                logger.info(f"📸 Screenshot saved: {screenshot_path}")
+            else:
+                logger.warning(f"⚠️  Could not access browser page for screenshot")
+                screenshot_path = None
         except Exception as screenshot_error:
             logger.warning(f"⚠️  Could not capture screenshot: {screenshot_error}")
+            screenshot_path = None
         
         logger.info("")
         logger.info("⚠️  IMPORTANT: Review the browser and agent report")
@@ -1036,7 +1080,11 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
         logger.info("   - Check your email for application confirmation")
         logger.info("")
         
-        return str(result)
+        # Return both agent result and screenshot path for logging
+        return {
+            "agent_result": str(result),
+            "screenshot_path": str(screenshot_path) if screenshot_path else None
+        }
         
     except Exception as e:
         logger.error(f"❌ Failed to fill application form: {str(e)}")
@@ -1330,6 +1378,32 @@ Examples:
     # Run automation
     try:
         await automate_job_application(JOB_URL, skip_generation=args.skip_generation)
+        
+        # Generate HTML report for this run
+        try:
+            from generate_report import generate_html_report
+            from urllib.parse import urlparse
+            
+            # Extract company name for report
+            domain = urlparse(JOB_URL).netloc.replace('www.', '').split('.')[0]
+            
+            logger.info("")
+            logger.info("=" * 80)
+            logger.info("📊 Generating HTML report...")
+            
+            report_path = generate_html_report(
+                job_urls=[JOB_URL],     # Only include this job
+                report_name=domain,     # Use company name
+                last_n_minutes=5        # Only include logs from last 5 minutes (current run)
+            )
+            
+            logger.info(f"✅ Report generated: {report_path}")
+            logger.info(f"🌐 Open in browser: file:///{Path(report_path).absolute()}")
+            logger.info("=" * 80)
+            
+        except Exception as report_error:
+            logger.warning(f"⚠️  Could not generate report: {report_error}")
+        
     except KeyboardInterrupt:
         logger.info("")
         logger.info("⚠️  Automation interrupted by user")

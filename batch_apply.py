@@ -479,6 +479,31 @@ async def batch_process_jobs_parallel(skip_generation: bool = False, company_lis
         end_time = datetime.now()
         save_batch_report(final_results, start_time, end_time)
         
+        # Generate HTML report for this batch
+        try:
+            from generate_report import generate_html_report
+            
+            # Extract batch name from company list path
+            batch_name = Path(company_list_path).stem if company_list_path else "batch"
+            
+            # Get all job URLs from this batch
+            job_urls = [result.get('job_url') for result in final_results if result.get('job_url')]
+            
+            logger.info("")
+            logger.info("📊 Generating HTML report for batch...")
+            
+            report_path = generate_html_report(
+                job_urls=job_urls,
+                report_name=f"{batch_name}_parallel"
+            )
+            
+            logger.info(f"✅ Batch report generated: {report_path}")
+            logger.info(f"🌐 Open in browser: file:///{Path(report_path).absolute()}")
+            logger.info("")
+            
+        except Exception as report_error:
+            logger.warning(f"⚠️  Could not generate HTML report: {report_error}")
+        
         logger.info("")
         logger.info("█" * 80)
         logger.info("█" + " " * 78 + "█")
@@ -601,6 +626,30 @@ async def batch_process_jobs(skip_generation: bool = False, resume_from_progress
         # Generate final report
         end_time = datetime.now()
         save_batch_report(results, start_time, end_time)
+        
+        # Generate HTML report for this batch
+        try:
+            from generate_report import generate_html_report
+            
+            # Extract batch name from company list path
+            batch_name = Path(company_list_path).stem if company_list_path else "batch"
+            
+            # Get all job URLs from this batch
+            job_urls = [result.get('job_url') for result in results if result.get('job_url')]
+            
+            logger.info("")
+            logger.info("📊 Generating HTML report for batch...")
+            
+            report_path = generate_html_report(
+                job_urls=job_urls,
+                report_name=batch_name
+            )
+            
+            logger.info(f"✅ Batch report generated: {report_path}")
+            logger.info(f"🌐 Open in browser: file:///{Path(report_path).absolute()}")
+            
+        except Exception as report_error:
+            logger.warning(f"⚠️  Could not generate HTML report: {report_error}")
         
         logger.info("")
         logger.info("█" * 80)

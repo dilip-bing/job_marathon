@@ -999,13 +999,14 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
             llm=llm,
             browser=browser,
             available_file_paths=available_file_paths,
+            use_vision=True,  # Enable vision mode for automatic screenshot capture
         )
         
         logger.info("🤖 Agent created, starting form filling automation...")
         logger.info("📋 Browser-use logs:")
         logger.info("-" * 80)
         
-        # Run the task
+        # Run the task  
         result = await agent.run()
         
         logger.info("-" * 80)
@@ -1015,60 +1016,35 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
         logger.info(f"{str(result)}")
         logger.info("")
         
-        # Capture screenshot from agent's browser
+        # Extract screenshot from agent history (captured during execution due to use_vision=True)
         screenshot_path = None
         try:
             from urllib.parse import urlparse
+            import shutil
+            
             domain = urlparse(job_url).netloc.replace('www.', '').split('.')[0]
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            screenshot_path = SCREENSHOTS_DIR / f"{domain}_{timestamp}.png"
+            final_screenshot_path = SCREENSHOTS_DIR / f"{domain}_{timestamp}.png"
             
-            # Try multiple methods to get the current page
-            current_page = None
+            # Check agent history for screenshots (captured with use_vision=True)
+            if hasattr(result, 'history') and result.history:
+                for i, step in enumerate(result.history):
+                    # Check if step has a state with screenshot_path
+                    if hasattr(step, 'state') and step.state and hasattr(step.state, 'screenshot_path'):
+                        if step.state.screenshot_path and os.path.exists(step.state.screenshot_path):
+                            # Copy the screenshot to our screenshots directory
+                            shutil.copy2(step.state.screenshot_path, final_screenshot_path)
+                            screenshot_path = final_screenshot_path
+                            logger.info(f"📸 Screenshot extracted from agent history (step {i+1}): {screenshot_path}")
+                            logger.info(f"   File size: {screenshot_path.stat().st_size} bytes")
+                            break  # Use the first screenshot found
             
-            # Method 1: Access from agent.browser
-            if hasattr(agent, 'browser'):
-                try:
-                    if hasattr(agent.browser, 'context') and agent.browser.context:
-                        pages = agent.browser.context.pages
-                        if pages and len(pages) > 0:
-                            current_page = pages[-1]
-                            logger.info("✓ Got page from agent.browser.context")
-                except Exception:
-                    pass
-            
-            # Method 2: Access from browser.contexts list
-            if not current_page and hasattr(browser, 'contexts'):
-                try:
-                    contexts = browser.contexts
-                    if contexts and len(contexts) > 0:
-                        pages = contexts[0].pages
-                        if pages and len(pages) > 0:
-                            current_page = pages[-1]
-                            logger.info("✓ Got page from browser.contexts[0]")
-                except Exception:
-                    pass
-            
-            # Method 3: Access from browser.context directly
-            if not current_page and hasattr(browser, 'context'):
-                try:
-                    if browser.context:
-                        pages = browser.context.pages
-                        if pages and len(pages) > 0:
-                            current_page = pages[-1]
-                            logger.info("✓ Got page from browser.context")
-                except Exception:
-                    pass
-            
-            # Capture screenshot if we got a page
-            if current_page:
-                await current_page.screenshot(path=str(screenshot_path), full_page=True)
-                logger.info(f"📸 Screenshot saved: {screenshot_path}")
-            else:
-                logger.warning(f"⚠️  Could not access browser page for screenshot")
-                screenshot_path = None
+            if not screenshot_path:
+                logger.warning("⚠️  No screenshots found in agent history")
+                logger.info("   Agent may not have enabled vision mode or no screenshots were captured")
+                    
         except Exception as screenshot_error:
-            logger.warning(f"⚠️  Could not capture screenshot: {screenshot_error}")
+            logger.warning(f"⚠️  Could not extract screenshot from agent history: {screenshot_error}")
             screenshot_path = None
         
         logger.info("")

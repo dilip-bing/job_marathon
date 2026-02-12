@@ -1187,40 +1187,61 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
 
 If the application requires creating an account:
 
-1. **BEFORE STARTING**: Check for CAPTCHA on the account creation page
-   - If you see reCAPTCHA, hCaptcha, "I'm not a robot", or any CAPTCHA challenge
-   - STOP IMMEDIATELY with done(success=False, impossible_task=True, text="CAPTCHA required during account creation")
-   - Do NOT attempt to create the account
+STEP 1 - Check for CAPTCHA FIRST:
+- If you see reCAPTCHA, hCaptcha, "I'm not a robot", or any CAPTCHA challenge
+- STOP IMMEDIATELY with done(success=False, impossible_task=True, text="CAPTCHA required during account creation")
+- Do NOT attempt to create the account
 
-2. Use provided email: {personal_info.get('email', 'dthirukondac@binghamton.edu')}
-3. Generate password following their requirements:
-   - Usually: 8+ characters, 1 uppercase, 1 lowercase, 1 number, 1 special char
-   - Example format: CompanyName2026! (e.g., Ciena2026!, Workday2026!)
-4. Fill both password fields identically
-5. Check ALL required checkboxes (privacy policy, terms, etc.)
-6. Click "Create Account" button
-7. **AFTER CLICKING**: Wait 2-3 seconds and check for errors:
-   - Email verification required → STOP and log credentials
-   - Account locked/disabled → STOP and log credentials  
-   - Temporary account issue → STOP and log credentials
-   - Any negative error message → STOP and log credentials
+STEP 2 - Create Account (ONE ATTEMPT ONLY):
+- Use email: {personal_info.get('email', 'dthirukondac@binghamton.edu')}
+- Generate password: CompanyName2026! (e.g., Ciena2026!, Workday2026!)
+  * Requirements: 8+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
+- Fill both password fields identically
+- Check ALL required checkboxes (privacy policy, terms, etc.)
+- Click "Create Account" button ONCE
+- Wait 2-3 seconds
 
-🚨 CRITICAL - STOP AFTER ACCOUNT CREATION ERRORS 🚨
-If you create an account and encounter ANY error (email verification, locked, etc.):
-- DO NOT retry login
-- DO NOT use "Forgot Password"
-- DO NOT attempt alternative methods
-- IMMEDIATELY terminate with done(success=False, impossible_task=True, text="...")
-- **ALWAYS include credentials** in your termination message:
-  
-  Format: "Created account: {personal_info.get('email', 'email')} / Password123!"
+STEP 3 - Check Account Creation Result:
+- If redirected to sign-in page → Continue to STEP 4
+- If error appears → TERMINATE with credentials logged
+- Do NOT click "Create Account" again
 
-Example termination after account creation blocker:
-"Unable to complete application: Email verification code required. 
+STEP 4 - Sign In (ONE ATTEMPT ONLY):
+- Fill email: {personal_info.get('email', 'dthirukondac@binghamton.edu')}
+- Fill password: (the password you created, e.g., Ciena2026!)
+- Click "Sign In" button ONCE
+- Wait 5 seconds for page to navigate
+
+STEP 5 - Check Sign-In Result:
+- If page navigates to application form → SUCCESS, continue filling form
+- If page STAYS on sign-in (URL unchanged, still shows Sign In) → TERMINATE with credentials
+- If ANY error message appears → TERMINATE with credentials
+- DO NOT click "Sign In" again (max 1 attempt)
+- DO NOT click "Create Account" again
+- DO NOT click "Forgot Password"
+- DO NOT try alternative methods
+
+🚨 CRITICAL STOP CONDITIONS 🚨
+TERMINATE IMMEDIATELY if after clicking "Sign In":
+- Page URL is still the sign-in URL (hasn't changed)
+- Page still shows "Sign In" heading/button after 5 seconds
+- Still see email/password input fields
+- No navigation to application form
+- Any error text appears (even without explicit error message)
+
+⚠️ ALWAYS LOG CREDENTIALS BEFORE TERMINATING:
+Format: "Created account: {personal_info.get('email', 'email')} / Password123!"
+
+Example termination after sign-in failure:
+"Unable to complete application: Sign-in page did not navigate after clicking Sign In button. 
+Page remains on sign-in screen with no error messages displayed.
 Created account: dthirukondac@binghamton.edu / Ciena2026!
-Please check email inbox for verification code and complete manually."
+Account may require email verification or has authentication restrictions."
 
-⚠️ IMPORTANT: If account creation succeeds and no errors appear, proceed with filling the application form.
+✅ ONLY CONTINUE if:
+- After clicking "Sign In", you are redirected to a NEW page
+- The new page shows application form fields (not sign-in fields)
+- URL has changed from sign-in URL to application URL
             """
             
             fill_form_task = fill_form_task + "\n\n" + account_creation_prompt

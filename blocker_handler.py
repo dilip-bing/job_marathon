@@ -444,31 +444,61 @@ Before attempting to fill any form, CHECK for these BLOCKERS:
    - "Enter code sent to phone" or "SMS verification"
    → TERMINATE: Cannot access SMS
 
-5. ACCOUNT LOCKED / LOGIN FAILED / POST-LOGIN ERRORS
-   - "Account locked" or "Account disabled"  or "Account suspended"
+5. ACCOUNT LOCKED / LOGIN FAILED / SIGN-IN STUCK
+   - "Account locked" or "Account disabled" or "Account suspended"
    - "Wrong email address or password"
    - "Invalid credentials" or "Authentication failed"
    - "Your account has been locked temporarily"
    - "Account not found" or "Too many attempts"
    - "Please verify your email" or "Email verification required"
    - "Check your email for verification" or "Verification link sent"
-   - ANY error message after account creation or login attempt with words:
-     * "verification", "verify", "locked", "disabled", "suspended"
-     * "temporary", "temporarily", "invalid", "wrong", "not found"
-     * "failed", "error", "unable", "cannot"
-   → TERMINATE IMMEDIATELY: Do NOT retry with "Forgot Password"
-   → Do NOT attempt multiple logins
-   → Do NOT try alternative login methods
-   → NOTE: If you created an account, ALWAYS log the credentials before terminating:
+   - Sign-in button clicked but page DOES NOT navigate/change
+   - Stuck on sign-in page after multiple click attempts
+   - ANY error message after account creation or login attempt
+   → TERMINATE IMMEDIATELY: Do NOT retry anything
+   → Do NOT click "Forgot Password"
+   → Do NOT click "Create Account" again
+   → Do NOT attempt multiple sign-ins (max 2 clicks on Sign In button)
+   → ALWAYS log the credentials before terminating:
      "Created account: email@example.com / Password123!"
 
-🚨 CRITICAL: POST-ACCOUNT CREATION FAILURES 🚨
-If you successfully create an account (entered email + password + clicked Create Account):
-- And then see ANY error message (verification, locked, etc.)
-- STOP IMMEDIATELY - do not retry login, do not use forgot password
-- LOG THE CREDENTIALS in your response before terminating:
-  Example: "Created account: dthirukondac@binghamton.edu / Ciena2026! 
-  Unable to proceed: Email verification required."
+🚨 CRITICAL: ACCOUNT CREATION → SIGN-IN FLOW 🚨
+
+STEP 1: Create Account
+- Fill email, password, checkboxes
+- Click "Create Account" button ONCE
+- Wait 2-3 seconds
+
+STEP 2: Check Result
+- If redirected to sign-in page → Proceed to STEP 3
+- If error message appears → TERMINATE with credentials
+- If account creation fails → TERMINATE (do not retry)
+
+STEP 3: Sign In (ONE ATTEMPT ONLY)
+- Fill email and password fields
+- Click "Sign In" button ONCE
+- Wait 3-5 seconds
+
+STEP 4: Check Sign-In Result
+- If page navigates to application form → SUCCESS, continue
+- If page STAYS on sign-in (no navigation) → TERMINATE immediately with credentials
+- If ANY error appears → TERMINATE immediately with credentials
+- DO NOT click Sign In again
+- DO NOT click Create Account again
+- DO NOT click Forgot Password
+
+🚨 SIGN-IN FAILURE INDICATORS 🚨
+These mean STOP IMMEDIATELY with credentials:
+- Sign In button clicked but URL unchanged
+- Page still shows "Sign In" heading after 5 seconds
+- No navigation to application form
+- Still see email/password fields after sign-in attempt
+- Error message (any text with: error, invalid, wrong, failed, locked, verification)
+
+Example termination message:
+"Unable to complete application: Sign-in failed (page did not navigate).
+Created account: dthirukondac@binghamton.edu / Ciena2026!
+Account may require email verification or has other authentication issues."
 
 ⚠️ SOFT BLOCKERS (Note but attempt to proceed):
 

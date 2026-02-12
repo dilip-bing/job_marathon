@@ -69,7 +69,7 @@ def get_status_color(status: str) -> str:
     
     if 'success' in status_lower:
         return '#22c55e'  # Green
-    elif 'impossible task' in status_lower or 'blocker' in status_lower:
+    elif 'impossible' in status_lower or 'blocker' in status_lower:
         return '#f59e0b'  # Orange
     elif 'fail' in status_lower or 'error' in status_lower:
         return '#ef4444'  # Red
@@ -83,7 +83,7 @@ def get_status_icon(status: str) -> str:
     
     if 'success' in status_lower:
         return '✅'
-    elif 'impossible task' in status_lower or 'blocker' in status_lower:
+    elif 'impossible' in status_lower or 'blocker' in status_lower:
         return '🚫'
     elif 'fail' in status_lower or 'error' in status_lower:
         return '❌'
@@ -138,7 +138,7 @@ def generate_html_report(output_path: str = None, job_urls: List[str] = None, re
     # Count statistics
     total = len(logs)
     successes = sum(1 for log in logs if 'success' in log.get('status', '').lower())
-    blockers = sum(1 for log in logs if 'impossible task' in log.get('status', '').lower())
+    blockers = sum(1 for log in logs if 'impossible' in log.get('status', '').lower())
     failures = sum(1 for log in logs if 'fail' in log.get('status', '').lower() or 'error' in log.get('status', '').lower())
     
     success_rate = (successes / total * 100) if total > 0 else 0

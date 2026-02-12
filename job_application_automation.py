@@ -1187,24 +1187,40 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
 
 If the application requires creating an account:
 
-1. Use provided email: {personal_info.get('email', 'dthirukondac@binghamton.edu')}
-2. Generate password following their requirements:
+1. **BEFORE STARTING**: Check for CAPTCHA on the account creation page
+   - If you see reCAPTCHA, hCaptcha, "I'm not a robot", or any CAPTCHA challenge
+   - STOP IMMEDIATELY with done(success=False, impossible_task=True, text="CAPTCHA required during account creation")
+   - Do NOT attempt to create the account
+
+2. Use provided email: {personal_info.get('email', 'dthirukondac@binghamton.edu')}
+3. Generate password following their requirements:
    - Usually: 8+ characters, 1 uppercase, 1 lowercase, 1 number, 1 special char
    - Example format: CompanyName2026! (e.g., Ciena2026!, Workday2026!)
-3. Fill both password fields identically
-4. Check ALL required checkboxes (privacy policy, terms, etc.)
-5. Click "Create Account" button
+4. Fill both password fields identically
+5. Check ALL required checkboxes (privacy policy, terms, etc.)
+6. Click "Create Account" button
+7. **AFTER CLICKING**: Wait 2-3 seconds and check for errors:
+   - Email verification required → STOP and log credentials
+   - Account locked/disabled → STOP and log credentials  
+   - Temporary account issue → STOP and log credentials
+   - Any negative error message → STOP and log credentials
 
-⚠️ IMPORTANT - LOG CREDENTIALS BEFORE ANY BLOCKER:
-If you create an account and then encounter a blocker (email verification, account locked, etc.):
-- Include in your response: "Created account: {personal_info.get('email', 'email')} / Password123!"
-- This allows manual continuation after blocker is resolved
-- Format clearly so credentials can be extracted from logs
+🚨 CRITICAL - STOP AFTER ACCOUNT CREATION ERRORS 🚨
+If you create an account and encounter ANY error (email verification, locked, etc.):
+- DO NOT retry login
+- DO NOT use "Forgot Password"
+- DO NOT attempt alternative methods
+- IMMEDIATELY terminate with done(success=False, impossible_task=True, text="...")
+- **ALWAYS include credentials** in your termination message:
+  
+  Format: "Created account: {personal_info.get('email', 'email')} / Password123!"
 
-Example response when blocked:
+Example termination after account creation blocker:
 "Unable to complete application: Email verification code required. 
 Created account: dthirukondac@binghamton.edu / Ciena2026!
 Please check email inbox for verification code and complete manually."
+
+⚠️ IMPORTANT: If account creation succeeds and no errors appear, proceed with filling the application form.
             """
             
             fill_form_task = fill_form_task + "\n\n" + account_creation_prompt

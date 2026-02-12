@@ -430,8 +430,10 @@ Before attempting to fill any form, CHECK for these BLOCKERS:
 2. CAPTCHA
    - "I'm not a robot" checkbox
    - Image selection challenges
-   - reCAPTCHA / hCaptcha
+   - reCAPTCHA / hCaptcha / Cloudflare challenge
+   - CAPTCHA during account creation or login
    → TERMINATE: Cannot solve CAPTCHA
+   → If seen DURING account creation, stop immediately (account may already be created)
 
 3. EXPIRED JOB
    - "Job expired" or "Position no longer available"
@@ -442,13 +444,31 @@ Before attempting to fill any form, CHECK for these BLOCKERS:
    - "Enter code sent to phone" or "SMS verification"
    → TERMINATE: Cannot access SMS
 
-5. ACCOUNT LOCKED / LOGIN FAILED
-   - "Account locked" or "Account disabled"
+5. ACCOUNT LOCKED / LOGIN FAILED / POST-LOGIN ERRORS
+   - "Account locked" or "Account disabled"  or "Account suspended"
    - "Wrong email address or password"
    - "Invalid credentials" or "Authentication failed"
+   - "Your account has been locked temporarily"
    - "Account not found" or "Too many attempts"
-   → TERMINATE: Cannot proceed with automated login
-   → NOTE: If you created an account, log the credentials before terminating
+   - "Please verify your email" or "Email verification required"
+   - "Check your email for verification" or "Verification link sent"
+   - ANY error message after account creation or login attempt with words:
+     * "verification", "verify", "locked", "disabled", "suspended"
+     * "temporary", "temporarily", "invalid", "wrong", "not found"
+     * "failed", "error", "unable", "cannot"
+   → TERMINATE IMMEDIATELY: Do NOT retry with "Forgot Password"
+   → Do NOT attempt multiple logins
+   → Do NOT try alternative login methods
+   → NOTE: If you created an account, ALWAYS log the credentials before terminating:
+     "Created account: email@example.com / Password123!"
+
+🚨 CRITICAL: POST-ACCOUNT CREATION FAILURES 🚨
+If you successfully create an account (entered email + password + clicked Create Account):
+- And then see ANY error message (verification, locked, etc.)
+- STOP IMMEDIATELY - do not retry login, do not use forgot password
+- LOG THE CREDENTIALS in your response before terminating:
+  Example: "Created account: dthirukondac@binghamton.edu / Ciena2026! 
+  Unable to proceed: Email verification required."
 
 ⚠️ SOFT BLOCKERS (Note but attempt to proceed):
 

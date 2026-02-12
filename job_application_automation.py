@@ -1076,6 +1076,35 @@ async def fill_application_form(job_url: str, user_profile: Dict, resume_path: s
             # Add blocker detection awareness to agent prompt
             fill_form_task = fill_form_task + "\n\n" + get_blocker_detection_prompt()
             
+            # Add account creation and credential logging instructions
+            account_creation_prompt = f"""
+
+🔐 ACCOUNT CREATION (Workday, Greenhouse, etc.):
+
+If the application requires creating an account:
+
+1. Use provided email: {personal_info.get('email', 'dthirukondac@binghamton.edu')}
+2. Generate password following their requirements:
+   - Usually: 8+ characters, 1 uppercase, 1 lowercase, 1 number, 1 special char
+   - Example format: CompanyName2026! (e.g., Ciena2026!, Workday2026!)
+3. Fill both password fields identically
+4. Check ALL required checkboxes (privacy policy, terms, etc.)
+5. Click "Create Account" button
+
+⚠️ IMPORTANT - LOG CREDENTIALS BEFORE ANY BLOCKER:
+If you create an account and then encounter a blocker (email verification, account locked, etc.):
+- Include in your response: "Created account: {personal_info.get('email', 'email')} / Password123!"
+- This allows manual continuation after blocker is resolved
+- Format clearly so credentials can be extracted from logs
+
+Example response when blocked:
+"Unable to complete application: Email verification code required. 
+Created account: dthirukondac@binghamton.edu / Ciena2026!
+Please check email inbox for verification code and complete manually."
+            """
+            
+            fill_form_task = fill_form_task + "\n\n" + account_creation_prompt
+            
             # Close pre-check page (agent will create its own browser session)
             await page.close()
             
@@ -1325,8 +1354,10 @@ async def automate_job_application(job_url: str, skip_generation: bool = False, 
                 blocker_type = "CAPTCHA"
             elif "email" in failure_lower and "verif" in failure_lower:
                 blocker_type = "EMAIL_VERIFICATION"
-            elif "phone" in failure_lower and "verif" in failure_lower:
+            elif "phone" in failure_lower and ("verif" in failure_lower or "sms" in failure_lower):
                 blocker_type = "PHONE_VERIFICATION"
+            elif "locked" in failure_lower or "wrong" in failure_lower or "invalid" in failure_lower or "authentication" in failure_lower:
+                blocker_type = "ACCOUNT_LOCKED"
             elif "login" in failure_lower or "sign in" in failure_lower:
                 blocker_type = "LOGIN_REQUIRED"
             else:

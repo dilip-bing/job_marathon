@@ -60,6 +60,9 @@ LOGS_DIR = BASE_DIR / "logs"
 # Screenshots directory
 SCREENSHOTS_DIR = LOGS_DIR / "screenshots"
 
+# Reports directory
+REPORTS_DIR = BASE_DIR / "reports"
+
 # Application log file
 APPLICATION_LOG_FILE = LOGS_DIR / "application_log.json"
 
@@ -116,6 +119,7 @@ def validate_configuration():
     GENERATED_DOCS_DIR.mkdir(exist_ok=True)
     LOGS_DIR.mkdir(exist_ok=True)
     SCREENSHOTS_DIR.mkdir(exist_ok=True, parents=True)
+    REPORTS_DIR.mkdir(exist_ok=True, parents=True)
     
     if errors:
         error_msg = "\n".join([f"  - {err}" for err in errors])

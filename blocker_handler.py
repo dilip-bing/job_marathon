@@ -31,6 +31,7 @@ class BlockerType(Enum):
     CAPTCHA = "captcha"
     EXPIRED_JOB = "expired_job"
     PHONE_VERIFICATION = "phone_verification"
+    ACCOUNT_LOCKED = "account_locked"
     VIDEO_REQUIRED = "video_required"
     ASSESSMENT_REQUIRED = "assessment_required"
     MISSING_DOCUMENTS = "missing_documents"
@@ -92,6 +93,27 @@ class BlockerDetector:
         r"\d+.*digit.*code.*phone",
         r"\d+.*digit.*code.*mobile",
         r"mobile.*phone.*verification",
+    ]
+    
+    # Account locked / login failure patterns
+    ACCOUNT_LOCKED_PATTERNS = [
+        r"account.*locked",
+        r"account.*disabled",
+        r"account.*suspended",
+        r"wrong.*email.*password",
+        r"wrong.*email.*address.*password",
+        r"entered.*wrong.*email",
+        r"incorrect.*email.*password",
+        r"invalid.*email.*password",
+        r"invalid.*credentials",
+        r"authentication.*failed",
+        r"login.*failed",
+        r"sign.*in.*failed",
+        r"email.*not.*found",
+        r"account.*not.*found",
+        r"password.*incorrect",
+        r"too.*many.*attempts",
+        r"temporarily.*locked",
     ]
     
     # Video requirement patterns
@@ -182,8 +204,24 @@ class BlockerDetector:
                 logger.warning(f"🚫 BLOCKER: {reason}")
                 return True, reason
         
-        return False, ""
-    
+        return False, ""    
+    @classmethod
+    def detect_account_locked(cls, page_text: str, url: str) -> Tuple[bool, str]:
+        """
+        Detect account locked or authentication failure.
+        
+        Returns:
+            (is_blocked, reason)
+        """
+        page_lower = page_text.lower()
+        
+        for pattern in cls.ACCOUNT_LOCKED_PATTERNS:
+            if re.search(pattern, page_lower, re.IGNORECASE):
+                reason = "Account locked or authentication failed - cannot proceed with automated login"
+                logger.warning(f"🚫 BLOCKER: {reason}")
+                return True, reason
+        
+        return False, ""    
     @classmethod
     def detect_video_requirement(cls, page_text: str, url: str) -> Tuple[bool, str]:
         """
@@ -238,6 +276,7 @@ class BlockerHandler:
             (BlockerType.PHONE_VERIFICATION, self.detector.detect_phone_verification),
             (BlockerType.EMAIL_VERIFICATION, self.detector.detect_email_verification),
             (BlockerType.CAPTCHA, self.detector.detect_captcha),
+            (BlockerType.ACCOUNT_LOCKED, self.detector.detect_account_locked),
         ]
     
     def check_for_blockers(self, page_text: str, url: str) -> Tuple[bool, BlockerType, str]:
@@ -280,6 +319,7 @@ class BlockerHandler:
             BlockerType.CAPTCHA,
             BlockerType.EXPIRED_JOB,
             BlockerType.PHONE_VERIFICATION,
+            BlockerType.ACCOUNT_LOCKED,
         ]
         
         return blocker_type in hard_blockers
@@ -307,6 +347,9 @@ class BlockerHandler:
         elif blocker_type == BlockerType.PHONE_VERIFICATION:
             return f"Unable to complete application: {reason}. The system requires SMS verification which cannot be automated."
         
+        elif blocker_type == BlockerType.ACCOUNT_LOCKED:
+            return f"Unable to complete application: {reason}. The account is locked or authentication failed. Please check the logged credentials and try manually."
+        
         elif blocker_type == BlockerType.VIDEO_REQUIRED:
             return f"Unable to complete application: {reason}. Video recording requires human interaction and cannot be fully automated."
         
@@ -323,6 +366,7 @@ class BlockerHandler:
             BlockerType.CAPTCHA: "CAPTCHA Blocker",
             BlockerType.EXPIRED_JOB: "Expired Job",
             BlockerType.PHONE_VERIFICATION: "Phone Verification Blocker",
+            BlockerType.ACCOUNT_LOCKED: "Account Locked / Auth Failed",
             BlockerType.VIDEO_REQUIRED: "Video Interview Required",
             BlockerType.ASSESSMENT_REQUIRED: "Assessment Required",
         }
@@ -398,18 +442,27 @@ Before attempting to fill any form, CHECK for these BLOCKERS:
    - "Enter code sent to phone" or "SMS verification"
    → TERMINATE: Cannot access SMS
 
+5. ACCOUNT LOCKED / LOGIN FAILED
+   - "Account locked" or "Account disabled"
+   - "Wrong email address or password"
+   - "Invalid credentials" or "Authentication failed"
+   - "Account not found" or "Too many attempts"
+   → TERMINATE: Cannot proceed with automated login
+   → NOTE: If you created an account, log the credentials before terminating
+
 ⚠️ SOFT BLOCKERS (Note but attempt to proceed):
 
-5. VIDEO INTERVIEW
+6. VIDEO INTERVIEW
    - "Record video response" or "HireVue"
    → PROCEED: Fill form first, video comes later
 
-6. ASSESSMENT
+7. ASSESSMENT
    - "Complete assessment" or "Take test"
    → PROCEED: Fill application, assessment comes later
 
 If you detect a HARD BLOCKER:
 - Do NOT attempt to fill the form
+- If you created account credentials, report them: "Created account: email@example.com / Password123!"
 - Return done(success=False, impossible_task=True, text="<reason>")
 - Be specific about which blocker type
 
